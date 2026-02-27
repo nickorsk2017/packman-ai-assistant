@@ -3,7 +3,7 @@ import Image from "next/image";
 
 export function HeroSection() {
   return (
-    <section className=" pt-10 md:pt-30 relative flex flex-col items-center justify-center md:pb-20 sm:pb-28 lg:pb-32 overflow-hidden bg-white">
+    <section className=" pt-10 md:pt-20 relative flex flex-col items-center justify-center md:pb-20 sm:pb-28 lg:pb-32 overflow-hidden bg-white">
       <div className="mx-auto max-w-6xl px-4 sm:px-6  lg:px-8 ">
         <div className="grid gap-12 lg:grid-cols-2 lg:gap-16 items-center">
           <div>
