@@ -1,0 +1,12 @@
+{
+  "version": "0.1.0",
+  "configurations": [
+    {
+      "name": "Run dev",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "cd frontend && pnpm dev",
+      "sourceMaps": true
+    }
+  ]
+}
