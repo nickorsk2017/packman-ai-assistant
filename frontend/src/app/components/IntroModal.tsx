@@ -31,17 +31,12 @@ export function IntroModal() {
           PackMan Demo MVP
         </h2>
         <div className="mt-4 space-y-3 text-sm leading-relaxed text-[var(--muted)] sm:text-base">
+
           <p>
-            PackMan is a demo MVP created by <span className="font-medium"><b>Nikolai Stepanov</b></span>.
-           
+            The AI-powered assistant for fast product discovery.
           </p>
           <p>
-            It showcases an AI-powered assistant designed to help users find the right product in
-            under a minute.
-          </p>
-          <p>
-            The project demonstrates scalable microservices architecture and modern frontend
-            development.
+            It helps users discover the right product in under a minute.
           </p>
           <p>This version is built for presentation and technical evaluation purposes.</p>
 
@@ -51,7 +46,7 @@ export function IntroModal() {
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 rounded-full border border-[var(--lilac-300)] bg-white px-4 py-1.5 text-xs font-medium text-[var(--lilac-700)] shadow-sm hover:bg-[var(--lilac-50)]"
           >
-            <span>View LinkedIn author</span>
+            <span>View LinkedIn Author</span>
           </a>
         </div>
         <div className="mt-6 flex justify-end gap-3">

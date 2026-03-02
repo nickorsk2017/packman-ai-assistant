@@ -15,7 +15,7 @@ export function HeroSection() {
             </p>
             <div className="mt-10 flex flex-wrap gap-4">
               <Link
-                href="#hero-search"
+                href="/search"
                 className="inline-flex items-center justify-center rounded-2xl bg-[var(--lilac-500)] px-8 py-4 text-base font-semibold text-white shadow-lg shadow-[var(--lilac-400)]/30 hover:bg-[var(--lilac-600)] transition-all hover:shadow-[var(--lilac-400)]/40"
               >
                 Try AI Search
