@@ -2,10 +2,17 @@
   "version": "0.1.0",
   "configurations": [
     {
-      "name": "Run dev",
+      "name": "Run Frontend dev",
       "type": "node-terminal",
       "request": "launch",
       "command": "cd frontend && pnpm dev",
+      "sourceMaps": true
+    },
+    {
+      "name": "Run Backend dev",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "cd backend/product-service && pnpm start:dev",
       "sourceMaps": true
     }
   ]
