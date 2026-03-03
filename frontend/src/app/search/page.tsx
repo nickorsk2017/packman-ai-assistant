@@ -7,6 +7,7 @@ import { SearchPageHeader } from "../components/SearchPageHeader";
 import { SearchFiltersSidebar } from "../components/SearchFiltersSidebar";
 import { SearchPromptSection } from "../components/SearchPromptSection";
 import { AddProductModal, type AddProductFormData } from "../components/AddProductModal";
+import { createProduct } from "../../api/products";
 
 const CATEGORIES = [{ id: "phones", label: "Phones" as const }];
 const ITEM_COUNT = 100;
@@ -16,9 +17,23 @@ export default function SearchPage() {
   const [maxPrice, setMaxPrice] = useState<string>("");
   const [selectedCategory] = useState(CATEGORIES[0]);
   const [addProductOpen, setAddProductOpen] = useState(false);
+  const [addProductError, setAddProductError] = useState<string | null>(null);
 
-  const handleAddProduct = (data: AddProductFormData) => {
-    console.log("Add product:", data);
+  const handleAddProduct = async (data: AddProductFormData) => {
+    setAddProductError(null);
+    try {
+      await createProduct({
+        name: data.name,
+        category: data.category,
+        price: data.price ? parseFloat(data.price) : 0,
+        description: data.description || null,
+      });
+      setAddProductOpen(false);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to add product";
+      setAddProductError(message);
+      throw err;
+    }
   };
 
   return (
@@ -50,8 +65,12 @@ export default function SearchPage() {
 
       <AddProductModal
         open={addProductOpen}
-        onClose={() => setAddProductOpen(false)}
+        onClose={() => {
+          setAddProductOpen(false);
+          setAddProductError(null);
+        }}
         onSubmit={handleAddProduct}
+        error={addProductError}
       />
     </div>
   );

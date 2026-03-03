@@ -14,7 +14,8 @@ export type AddProductFormData = {
 type AddProductModalProps = {
   open: boolean;
   onClose: () => void;
-  onSubmit?: (data: AddProductFormData) => void;
+  onSubmit?: (data: AddProductFormData) => Promise<void> | void;
+  error?: string | null;
 };
 
 const initialForm: AddProductFormData = {
@@ -24,14 +25,18 @@ const initialForm: AddProductFormData = {
   description: "",
 };
 
-export function AddProductModal({ open, onClose, onSubmit }: AddProductModalProps) {
+export function AddProductModal({ open, onClose, onSubmit, error }: AddProductModalProps) {
   const [form, setForm] = useState<AddProductFormData>(initialForm);
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    onSubmit?.(form);
-    setForm(initialForm);
-    onClose();
+    try {
+      await onSubmit?.(form);
+      setForm(initialForm);
+      onClose();
+    } catch {
+      // Error is handled and displayed by the parent via the error prop; keep modal open
+    }
   };
 
   const handleClose = () => {
@@ -55,6 +60,12 @@ export function AddProductModal({ open, onClose, onSubmit }: AddProductModalProp
         <p className="mt-1 text-sm text-[var(--muted)]">
           Add a product to the catalog for AI search.
         </p>
+
+        {error && (
+          <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700" role="alert">
+            {error}
+          </p>
+        )}
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
           <div>
