@@ -2,6 +2,7 @@
 
 import { useState, FormEvent } from "react";
 import { getDeviceDescription } from "../../api/ai";
+import { cx } from '@/app/utils';
 
 const CATEGORIES = [{ id: "phones", label: "Phones" }];
 
@@ -57,7 +58,7 @@ export function AddProductModal({ open, onClose, onSubmit, error }: AddProductMo
 
   if (!open) return null;
 
-  const containerHeightClass = step === 2 ? "h-[90vh]" : "max-h-[90vh]";
+  const containerHeightClass = step === 2 ? "h-[90vh]" : "";
 
   return (
     <div
@@ -67,7 +68,7 @@ export function AddProductModal({ open, onClose, onSubmit, error }: AddProductMo
       aria-labelledby="add-product-title"
     >
       <div
-        className={`flex w-full max-w-[600px] flex-col rounded-3xl bg-white p-6 shadow-2xl sm:p-8 ${containerHeightClass}`}
+        className={`max-h-[700px] flex w-full max-w-[600px] flex-col rounded-3xl bg-white p-6 shadow-2xl sm:p-8 ${containerHeightClass}`}
       >
         <h2 id="add-product-title" className="text-xl font-semibold text-[var(--foreground)] sm:text-2xl">
           Add Product
@@ -115,7 +116,7 @@ export function AddProductModal({ open, onClose, onSubmit, error }: AddProductMo
 
             {step === 2 && (
               <div className="flex h-full flex-col space-y-4">
-                <div className="flex-1 flex flex-col">
+                {!aiLoading &&<div className="flex-1 flex flex-col">
                   <label
                     htmlFor="product-description"
                     className="block text-xs font-semibold uppercase tracking-wider text-[var(--muted)]"
@@ -129,10 +130,11 @@ export function AddProductModal({ open, onClose, onSubmit, error }: AddProductMo
                     placeholder="Brief description or key features"
                     className="mt-1 w-full flex-1 min-h-[260px] resize-none rounded-xl border border-[var(--lilac-200)] bg-white px-3 py-2 text-sm text-[var(--foreground)] shadow-sm outline-none focus:border-[var(--lilac-500)] focus:ring-2 focus:ring-[var(--lilac-300)]"
                   />
-                </div>
+                </div>}
                 {aiLoading && (
-                  <p className="text-xs text-[var(--muted)]">
-                    Generating description with AI…
+                  <p className="flex-1 flex items-center justify-center gap-2 text-[22px] text-[var(--muted)]">
+                    <span className="inline-block h-8 w-8 animate-spin rounded-full border border-[var(--lilac-400)] border-t-transparent" />
+                    <span>Generating description with AI…</span>
                   </p>
                 )}
                 {aiError && (
@@ -192,7 +194,8 @@ export function AddProductModal({ open, onClose, onSubmit, error }: AddProductMo
             <button
               type="button"
               onClick={handleClose}
-              className="rounded-xl border border-[var(--lilac-200)] bg-white px-4 py-2 text-sm font-medium text-[var(--foreground)] hover:bg-[var(--lilac-50)]"
+              disabled={step === 2 && aiLoading}
+              className={cx(!aiLoading && "cursor-pointer", "rounded-xl border border-[var(--lilac-200)] bg-white px-4 py-2 text-sm font-medium text-[var(--foreground)] hover:bg-[var(--lilac-50)] disabled:opacity-60", step === 2 && aiLoading && "opacity-60 cursor-not-allowed")}
             >
               Cancel
             </button>
@@ -202,7 +205,8 @@ export function AddProductModal({ open, onClose, onSubmit, error }: AddProductMo
                 <button
                   type="button"
                   onClick={() => setStep((prev) => (prev > 1 ? ((prev - 1) as 1 | 2 | 3) : prev))}
-                  className="rounded-xl border border-[var(--lilac-200)] bg-white px-4 py-2 text-sm font-medium text-[var(--foreground)] hover:bg-[var(--lilac-50)]"
+                  disabled={step === 2 && aiLoading}
+                  className={cx(!aiLoading && "cursor-pointer", "rounded-xl border border-[var(--lilac-200)] bg-white px-4 py-2 text-sm font-medium text-[var(--foreground)] hover:bg-[var(--lilac-50)] disabled:opacity-60", step === 2 && aiLoading && "opacity-60 cursor-not-allowed")}
                 >
                   Back
                 </button>
@@ -211,7 +215,7 @@ export function AddProductModal({ open, onClose, onSubmit, error }: AddProductMo
               {step < 3 && (
                 <button
                   type="button"
-                  disabled={step === 1 && !form.name.trim()}
+                  disabled={(step === 1 && !form.name.trim()) || (step === 2 && aiLoading)}
                   onClick={async () => {
                     if (step === 1) {
                       const trimmed = form.name.trim();
@@ -237,7 +241,7 @@ export function AddProductModal({ open, onClose, onSubmit, error }: AddProductMo
                       setStep((prev) => (prev < 3 ? ((prev + 1) as 1 | 2 | 3) : prev));
                     }
                   }}
-                  className="rounded-xl bg-[var(--lilac-500)] px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-[var(--lilac-600)] disabled:opacity-60"
+                  className={cx(!aiLoading && "cursor-pointer", "rounded-xl bg-[var(--lilac-500)] px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-[var(--lilac-600)] disabled:opacity-60", aiLoading && "opacity-60 cursor-not-allowed")}
                 >
                   Next
                 </button>
@@ -246,7 +250,8 @@ export function AddProductModal({ open, onClose, onSubmit, error }: AddProductMo
               {step === 3 && (
                 <button
                   type="submit"
-                  className="rounded-xl bg-[var(--lilac-500)] px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-[var(--lilac-600)]"
+                  disabled={aiLoading}
+                  className={cx(!aiLoading && "cursor-pointer", "rounded-xl bg-[var(--lilac-500)] px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-[var(--lilac-600)] disabled:opacity-60",  aiLoading && "opacity-60 cursor-not-allowed")}
                 >
                   Add Product
                 </button>
