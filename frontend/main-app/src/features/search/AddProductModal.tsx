@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { getDeviceDescription } from "@/services/ai";
-import { cx } from "@/app/utils";
+import { cx } from "@/libs/utils";
 
 const CATEGORIES = [{ id: "phones", label: "Phones" }];
 
