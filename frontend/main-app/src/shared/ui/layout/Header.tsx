@@ -11,7 +11,7 @@ const navLinks = [
   { href: "#features", label: "Features" }
 ];
 
-export function LandingHeader() {
+export function Header() {
   const [open, setOpen] = useState(false);
 
   return (

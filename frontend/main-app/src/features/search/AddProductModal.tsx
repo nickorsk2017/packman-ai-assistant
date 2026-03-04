@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { getDeviceDescription } from "@/api/ai";
+import { getDeviceDescription } from "@/services/ai";
 import { cx } from "@/app/utils";
 
 const CATEGORIES = [{ id: "phones", label: "Phones" }];

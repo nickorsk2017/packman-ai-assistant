@@ -2,14 +2,21 @@
   "version": "0.1.0",
   "configurations": [
     {
-      "name": "Run Frontend dev",
+      "name": "Run Main App (Frontend)",
       "type": "node-terminal",
       "request": "launch",
-      "command": "cd frontend && pnpm dev",
+      "command": "cd frontend/main-app && pnpm dev",
       "sourceMaps": true
     },
     {
-      "name": "Run Backend dev",
+      "name": "Run Product Microservice",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "cd backend/product-service && pnpm start:dev",
+      "sourceMaps": true
+    },
+    {
+      "name": "Run AI Microservice",
       "type": "node-terminal",
       "request": "launch",
       "command": "cd backend/product-service && pnpm start:dev",

@@ -8,8 +8,8 @@ import {
   AddProductModal, 
   type AddProductFormData 
 } from "@/features/search";
-import { createProduct } from "@/api/products";
-import { LandingHeader, LandingFooter } from "@/features/common";
+import { createProduct } from "@/services/products";
+import { Header, Footer } from "@/shared/ui/layout";
 
 const CATEGORIES = [{ id: "phones", label: "Phones" as const }];
 const ITEM_COUNT = 100;
@@ -40,7 +40,7 @@ export default function SearchPage() {
 
   return (
     <div className="min-h-screen gradient-mesh bg-[var(--background)] text-[var(--foreground)]">
-      <LandingHeader />
+      <Header />
 
       <main className="pt-24 pb-16">
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
@@ -63,7 +63,7 @@ export default function SearchPage() {
         </div>
       </main>
 
-      <LandingFooter />
+      <Footer />
 
       <AddProductModal
         open={addProductOpen}

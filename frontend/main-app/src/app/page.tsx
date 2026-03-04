@@ -7,13 +7,13 @@ import {
   FeaturesSection, 
   FinalCTASection, 
 } from "@/features/home";
-import { LandingHeader, LandingFooter } from "@/features/common";
+import { Header, Footer } from "@/shared/ui/layout";
 
 export default function Home() {
   return (
     <div className="min-h-screen gradient-mesh bg-[var(--background)] text-[var(--foreground)]">
       <IntroModal />
-      <LandingHeader />
+      <Header />
 
       <main>
         <FinalCTASection />
@@ -22,7 +22,7 @@ export default function Home() {
         <HowItWorksSection />
         <MarketplaceSection />
         <FeaturesSection />
-        <LandingFooter />
+        <Footer />
       </main>
     </div>
   );
