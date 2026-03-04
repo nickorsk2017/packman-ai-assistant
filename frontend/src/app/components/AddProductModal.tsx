@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, FormEvent } from "react";
+import { getDeviceDescription } from "../../api/ai";
 
 const CATEGORIES = [{ id: "phones", label: "Phones" }];
 
@@ -30,6 +31,9 @@ const initialForm: AddProductFormData = {
 export function AddProductModal({ open, onClose, onSubmit, error }: AddProductModalProps) {
   const [form, setForm] = useState<AddProductFormData>(initialForm);
   const [step, setStep] = useState<1 | 2 | 3>(1);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState<string | null>(null);
+  const [lastAiName, setLastAiName] = useState<string | null>(null);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -45,10 +49,15 @@ export function AddProductModal({ open, onClose, onSubmit, error }: AddProductMo
   const handleClose = () => {
     setForm(initialForm);
     setStep(1);
+    setAiLoading(false);
+    setAiError(null);
+    setLastAiName(null);
     onClose();
   };
 
   if (!open) return null;
+
+  const containerHeightClass = step === 2 ? "h-[90vh]" : "max-h-[90vh]";
 
   return (
     <div
@@ -57,7 +66,9 @@ export function AddProductModal({ open, onClose, onSubmit, error }: AddProductMo
       aria-modal="true"
       aria-labelledby="add-product-title"
     >
-      <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl sm:p-8">
+      <div
+        className={`flex w-full max-w-[600px] flex-col rounded-3xl bg-white p-6 shadow-2xl sm:p-8 ${containerHeightClass}`}
+      >
         <h2 id="add-product-title" className="text-xl font-semibold text-[var(--foreground)] sm:text-2xl">
           Add Product
         </h2>
@@ -78,93 +89,104 @@ export function AddProductModal({ open, onClose, onSubmit, error }: AddProductMo
           </p>
         )}
 
-        <form onSubmit={handleSubmit} className="mt-6 space-y-6">
-          {step === 1 && (
-            <div className="space-y-4">
-              <div>
-                <label
-                  htmlFor="product-name"
-                  className="block text-xs font-semibold uppercase tracking-wider text-[var(--muted)]"
-                >
-                  Product name
-                </label>
-                <input
-                  id="product-name"
-                  type="text"
-                  required
-                  value={form.name}
-                  onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))}
-                  placeholder="e.g. iPhone 16 Pro Max"
-                  className="mt-1 w-full rounded-xl border border-[var(--lilac-200)] bg-white px-3 py-2 text-sm text-[var(--foreground)] shadow-sm outline-none focus:border-[var(--lilac-500)] focus:ring-2 focus:ring-[var(--lilac-300)]"
-                />
+        <form onSubmit={handleSubmit} className="mt-6 flex h-full flex-col">
+          <div className="flex-1 space-y-6 overflow-y-auto">
+            {step === 1 && (
+              <div className="space-y-4">
+                <div>
+                  <label
+                    htmlFor="product-name"
+                    className="block text-xs font-semibold uppercase tracking-wider text-[var(--muted)]"
+                  >
+                    Product name
+                  </label>
+                  <input
+                    id="product-name"
+                    type="text"
+                    required
+                    value={form.name}
+                    onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))}
+                    placeholder="e.g. iPhone 16 Pro Max"
+                    className="mt-1 w-full rounded-xl border border-[var(--lilac-200)] bg-white px-3 py-2 text-sm text-[var(--foreground)] shadow-sm outline-none focus:border-[var(--lilac-500)] focus:ring-2 focus:ring-[var(--lilac-300)]"
+                  />
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {step === 2 && (
-            <div className="space-y-4">
-              <div>
-                <label
-                  htmlFor="product-description"
-                  className="block text-xs font-semibold uppercase tracking-wider text-[var(--muted)]"
-                >
-                  Description <span className="font-normal text-[var(--muted)]">(optional)</span>
-                </label>
-                <textarea
-                  id="product-description"
-                  rows={4}
-                  value={form.description}
-                  onChange={(e) => setForm((prev) => ({ ...prev, description: e.target.value }))}
-                  placeholder="Brief description or key features"
-                  className="mt-1 w-full resize-y rounded-xl border border-[var(--lilac-200)] bg-white px-3 py-2 text-sm text-[var(--foreground)] shadow-sm outline-none focus:border-[var(--lilac-500)] focus:ring-2 focus:ring-[var(--lilac-300)]"
-                />
+            {step === 2 && (
+              <div className="flex h-full flex-col space-y-4">
+                <div className="flex-1 flex flex-col">
+                  <label
+                    htmlFor="product-description"
+                    className="block text-xs font-semibold uppercase tracking-wider text-[var(--muted)]"
+                  >
+                    Description <span className="font-normal text-[var(--muted)]">(optional)</span>
+                  </label>
+                  <textarea
+                    id="product-description"
+                    value={form.description}
+                    onChange={(e) => setForm((prev) => ({ ...prev, description: e.target.value }))}
+                    placeholder="Brief description or key features"
+                    className="mt-1 w-full flex-1 min-h-[260px] resize-none rounded-xl border border-[var(--lilac-200)] bg-white px-3 py-2 text-sm text-[var(--foreground)] shadow-sm outline-none focus:border-[var(--lilac-500)] focus:ring-2 focus:ring-[var(--lilac-300)]"
+                  />
+                </div>
+                {aiLoading && (
+                  <p className="text-xs text-[var(--muted)]">
+                    Generating description with AI…
+                  </p>
+                )}
+                {aiError && (
+                  <p className="text-xs text-red-600">
+                    Couldn&apos;t fetch AI description: {aiError}
+                  </p>
+                )}
               </div>
-            </div>
-          )}
+            )}
 
-          {step === 3 && (
-            <div className="space-y-4">
-              <div>
-                <label
-                  htmlFor="product-price"
-                  className="block text-xs font-semibold uppercase tracking-wider text-[var(--muted)]"
-                >
-                  Price (USD)
-                </label>
-                <input
-                  id="product-price"
-                  type="number"
-                  min={0}
-                  step={0.01}
-                  value={form.price}
-                  onChange={(e) => setForm((prev) => ({ ...prev, price: e.target.value }))}
-                  placeholder="e.g. 1299"
-                  className="mt-1 w-full rounded-xl border border-[var(--lilac-200)] bg-white px-3 py-2 text-sm text-[var(--foreground)] shadow-sm outline-none focus:border-[var(--lilac-500)] focus:ring-2 focus:ring-[var(--lilac-300)]"
-                />
-              </div>
+            {step === 3 && (
+              <div className="space-y-4">
+                <div>
+                  <label
+                    htmlFor="product-price"
+                    className="block text-xs font-semibold uppercase tracking-wider text-[var(--muted)]"
+                  >
+                    Price (USD)
+                  </label>
+                  <input
+                    id="product-price"
+                    type="number"
+                    min={0}
+                    step={0.01}
+                    value={form.price}
+                    onChange={(e) => setForm((prev) => ({ ...prev, price: e.target.value }))}
+                    placeholder="e.g. 1299"
+                    className="mt-1 w-full rounded-xl border border-[var(--lilac-200)] bg-white px-3 py-2 text-sm text-[var(--foreground)] shadow-sm outline-none focus:border-[var(--lilac-500)] focus:ring-2 focus:ring-[var(--lilac-300)]"
+                  />
+                </div>
 
-              <div>
-                <label
-                  htmlFor="product-condition"
-                  className="block text-xs font-semibold uppercase tracking-wider text-[var(--muted)]"
-                >
-                  Condition
-                </label>
-                <select
-                  id="product-condition"
-                  value={form.condition}
-                  onChange={(e) => setForm((prev) => ({ ...prev, condition: e.target.value }))}
-                  className="mt-1 w-full rounded-xl border border-[var(--lilac-200)] bg-white px-3 py-2 text-sm text-[var(--foreground)] shadow-sm outline-none focus:border-[var(--lilac-500)] focus:ring-2 focus:ring-[var(--lilac-300)]"
-                >
-                  <option value="">Select condition</option>
-                  <option value="new">New</option>
-                  <option value="like_new">Like new</option>
-                  <option value="used_good">Used — good</option>
-                  <option value="used_fair">Used — fair</option>
-                </select>
+                <div>
+                  <label
+                    htmlFor="product-condition"
+                    className="block text-xs font-semibold uppercase tracking-wider text-[var(--muted)]"
+                  >
+                    Condition
+                  </label>
+                  <select
+                    id="product-condition"
+                    value={form.condition}
+                    onChange={(e) => setForm((prev) => ({ ...prev, condition: e.target.value }))}
+                    className="mt-1 w-full rounded-xl border border-[var(--lilac-200)] bg-white px-3 py-2 text-sm text-[var(--foreground)] shadow-sm outline-none focus:border-[var(--lilac-500)] focus:ring-2 focus:ring-[var(--lilac-300)]"
+                  >
+                    <option value="">Select condition</option>
+                    <option value="new">New</option>
+                    <option value="like_new">Like new</option>
+                    <option value="used_good">Used — good</option>
+                    <option value="used_fair">Used — fair</option>
+                  </select>
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
 
           <div className="mt-6 flex justify-between gap-3">
             <button
@@ -190,7 +212,31 @@ export function AddProductModal({ open, onClose, onSubmit, error }: AddProductMo
                 <button
                   type="button"
                   disabled={step === 1 && !form.name.trim()}
-                  onClick={() => setStep((prev) => (prev < 3 ? ((prev + 1) as 1 | 2 | 3) : prev))}
+                  onClick={async () => {
+                    if (step === 1) {
+                      const trimmed = form.name.trim();
+                      if (!trimmed) return;
+                      setStep(2);
+                      // Only call AI if we haven't already for this name
+                      if (lastAiName === trimmed || form.description.trim()) return;
+                      try {
+                        setAiLoading(true);
+                        setAiError(null);
+                        const res = await getDeviceDescription(trimmed);
+                        setForm((prev) => ({
+                          ...prev,
+                          description: prev.description || res.description,
+                        }));
+                        setLastAiName(trimmed);
+                      } catch (e) {
+                        setAiError(e instanceof Error ? e.message : "Unknown error");
+                      } finally {
+                        setAiLoading(false);
+                      }
+                    } else {
+                      setStep((prev) => (prev < 3 ? ((prev + 1) as 1 | 2 | 3) : prev));
+                    }
+                  }}
                   className="rounded-xl bg-[var(--lilac-500)] px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-[var(--lilac-600)] disabled:opacity-60"
                 >
                   Next

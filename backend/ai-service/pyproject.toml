@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "packman-ai-service"
+version = "0.1.0"
+description = "PackMan AI service for generating device descriptions and specifications using OpenAI"
+readme = "README.md"
+requires-python = "==3.13.*"
+license = { text = "Commercial" }
+authors = [
+  { name = "Nikolai Stepanov", email = "nickstepargentina@gmail.com" }
+]
+dependencies = [
+  "fastapi==0.115.6",
+  "uvicorn[standard]==0.32.1",
+  "openai==1.55.3",
+  "sqlalchemy==2.0.36",
+  "psycopg2-binary==2.9.10",
+  "alembic==1.14.0",
+  "pydantic==2.10.3",
+  "pydantic-settings==2.6.1",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest",
+]
+
+[project.scripts]
+packman-ai-service = "app.main:main"
+
+[tool.setuptools]
+packages = ["app"]
+
