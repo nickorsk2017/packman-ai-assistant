@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, FormEvent } from "react";
-import { getDeviceDescription } from "../../api/ai";
-import { cx } from '@/app/utils';
+import { useState } from "react";
+import { getDeviceDescription } from "@/api/ai";
+import { cx } from "@/app/utils";
 
 const CATEGORIES = [{ id: "phones", label: "Phones" }];
 
@@ -36,7 +36,7 @@ export function AddProductModal({ open, onClose, onSubmit, error }: AddProductMo
   const [aiError, setAiError] = useState<string | null>(null);
   const [lastAiName, setLastAiName] = useState<string | null>(null);
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
       await onSubmit?.(form);
@@ -116,21 +116,23 @@ export function AddProductModal({ open, onClose, onSubmit, error }: AddProductMo
 
             {step === 2 && (
               <div className="flex h-full flex-col space-y-4">
-                {!aiLoading &&<div className="flex-1 flex flex-col">
-                  <label
-                    htmlFor="product-description"
-                    className="block text-xs font-semibold uppercase tracking-wider text-[var(--muted)]"
-                  >
-                    Description <span className="font-normal text-[var(--muted)]">(optional)</span>
-                  </label>
-                  <textarea
-                    id="product-description"
-                    value={form.description}
-                    onChange={(e) => setForm((prev) => ({ ...prev, description: e.target.value }))}
-                    placeholder="Brief description or key features"
-                    className="mt-1 w-full flex-1 min-h-[260px] resize-none rounded-xl border border-[var(--lilac-200)] bg-white px-3 py-2 text-sm text-[var(--foreground)] shadow-sm outline-none focus:border-[var(--lilac-500)] focus:ring-2 focus:ring-[var(--lilac-300)]"
-                  />
-                </div>}
+                {!aiLoading && (
+                  <div className="flex-1 flex flex-col">
+                    <label
+                      htmlFor="product-description"
+                      className="block text-xs font-semibold uppercase tracking-wider text-[var(--muted)]"
+                    >
+                      Description <span className="font-normal text-[var(--muted)]">(optional)</span>
+                    </label>
+                    <textarea
+                      id="product-description"
+                      value={form.description}
+                      onChange={(e) => setForm((prev) => ({ ...prev, description: e.target.value }))}
+                      placeholder="Brief description or key features"
+                      className="mt-1 w-full flex-1 min-h-[260px] resize-none rounded-xl border border-[var(--lilac-200)] bg-white px-3 py-2 text-sm text-[var(--foreground)] shadow-sm outline-none focus:border-[var(--lilac-500)] focus:ring-2 focus:ring-[var(--lilac-300)]"
+                    />
+                  </div>
+                )}
                 {aiLoading && (
                   <p className="flex-1 flex items-center justify-center gap-2 text-[22px] text-[var(--muted)]">
                     <span className="inline-block h-8 w-8 animate-spin rounded-full border border-[var(--lilac-400)] border-t-transparent" />
@@ -195,7 +197,11 @@ export function AddProductModal({ open, onClose, onSubmit, error }: AddProductMo
               type="button"
               onClick={handleClose}
               disabled={step === 2 && aiLoading}
-              className={cx(!aiLoading && "cursor-pointer", "rounded-xl border border-[var(--lilac-200)] bg-white px-4 py-2 text-sm font-medium text-[var(--foreground)] hover:bg-[var(--lilac-50)] disabled:opacity-60", step === 2 && aiLoading && "opacity-60 cursor-not-allowed")}
+              className={cx(
+                !aiLoading && "cursor-pointer",
+                "rounded-xl border border-[var(--lilac-200)] bg-white px-4 py-2 text-sm font-medium text-[var(--foreground)] hover:bg-[var(--lilac-50)] disabled:opacity-60",
+                step === 2 && aiLoading && "opacity-60 cursor-not-allowed",
+              )}
             >
               Cancel
             </button>
@@ -206,7 +212,11 @@ export function AddProductModal({ open, onClose, onSubmit, error }: AddProductMo
                   type="button"
                   onClick={() => setStep((prev) => (prev > 1 ? ((prev - 1) as 1 | 2 | 3) : prev))}
                   disabled={step === 2 && aiLoading}
-                  className={cx(!aiLoading && "cursor-pointer", "rounded-xl border border-[var(--lilac-200)] bg-white px-4 py-2 text-sm font-medium text-[var(--foreground)] hover:bg-[var(--lilac-50)] disabled:opacity-60", step === 2 && aiLoading && "opacity-60 cursor-not-allowed")}
+                  className={cx(
+                    !aiLoading && "cursor-pointer",
+                    "rounded-xl border border-[var(--lilac-200)] bg-white px-4 py-2 text-sm font-medium text-[var(--foreground)] hover:bg-[var(--lilac-50)] disabled:opacity-60",
+                    step === 2 && aiLoading && "opacity-60 cursor-not-allowed",
+                  )}
                 >
                   Back
                 </button>
@@ -241,7 +251,11 @@ export function AddProductModal({ open, onClose, onSubmit, error }: AddProductMo
                       setStep((prev) => (prev < 3 ? ((prev + 1) as 1 | 2 | 3) : prev));
                     }
                   }}
-                  className={cx(!aiLoading && "cursor-pointer", "rounded-xl bg-[var(--lilac-500)] px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-[var(--lilac-600)] disabled:opacity-60", aiLoading && "opacity-60 cursor-not-allowed")}
+                  className={cx(
+                    !aiLoading && "cursor-pointer",
+                    "rounded-xl bg-[var(--lilac-500)] px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-[var(--lilac-600)] disabled:opacity-60",
+                    aiLoading && "opacity-60 cursor-not-allowed",
+                  )}
                 >
                   Next
                 </button>
@@ -251,7 +265,11 @@ export function AddProductModal({ open, onClose, onSubmit, error }: AddProductMo
                 <button
                   type="submit"
                   disabled={aiLoading}
-                  className={cx(!aiLoading && "cursor-pointer", "rounded-xl bg-[var(--lilac-500)] px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-[var(--lilac-600)] disabled:opacity-60",  aiLoading && "opacity-60 cursor-not-allowed")}
+                  className={cx(
+                    !aiLoading && "cursor-pointer",
+                    "rounded-xl bg-[var(--lilac-500)] px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-[var(--lilac-600)] disabled:opacity-60",
+                    aiLoading && "opacity-60 cursor-not-allowed",
+                  )}
                 >
                   Add Product
                 </button>
@@ -263,3 +281,4 @@ export function AddProductModal({ open, onClose, onSubmit, error }: AddProductMo
     </div>
   );
 }
+

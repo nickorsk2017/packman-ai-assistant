@@ -1,12 +1,13 @@
-import { LandingHeader } from "./components/LandingHeader";
-import { HeroSection } from "./components/HeroSection";
-import { ProblemSolutionSection } from "./components/ProblemSolutionSection";
-import { HowItWorksSection } from "./components/HowItWorksSection";
-import { MarketplaceSection } from "./components/MarketplaceSection";
-import { FeaturesSection } from "./components/FeaturesSection";
-import { FinalCTASection } from "./components/FinalCTASection";
-import { LandingFooter } from "./components/LandingFooter";
-import { IntroModal } from "./components/IntroModal";
+import { 
+  IntroModal, 
+  HeroSection, 
+  ProblemSolutionSection, 
+  HowItWorksSection, 
+  MarketplaceSection, 
+  FeaturesSection, 
+  FinalCTASection, 
+} from "@/features/home";
+import { LandingHeader, LandingFooter } from "@/features/common";
 
 export default function Home() {
   return (

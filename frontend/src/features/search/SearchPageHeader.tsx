@@ -13,3 +13,4 @@ export function SearchPageHeader() {
     </div>
   );
 }
+

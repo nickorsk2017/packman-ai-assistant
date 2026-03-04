@@ -1,13 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { LandingHeader } from "../components/LandingHeader";
-import { LandingFooter } from "../components/LandingFooter";
-import { SearchPageHeader } from "../components/SearchPageHeader";
-import { SearchFiltersSidebar } from "../components/SearchFiltersSidebar";
-import { SearchPromptSection } from "../components/SearchPromptSection";
-import { AddProductModal, type AddProductFormData } from "../components/AddProductModal";
-import { createProduct } from "../../api/products";
+import { 
+  SearchPageHeader, 
+  SearchFiltersSidebar, 
+  SearchPromptSection, 
+  AddProductModal, 
+  type AddProductFormData 
+} from "@/features/search";
+import { createProduct } from "@/api/products";
+import { LandingHeader, LandingFooter } from "@/features/common";
 
 const CATEGORIES = [{ id: "phones", label: "Phones" as const }];
 const ITEM_COUNT = 100;
