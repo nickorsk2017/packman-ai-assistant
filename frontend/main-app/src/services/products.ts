@@ -6,7 +6,9 @@ export type Product = {
   category: string;
   price: number;
   description: string | null;
-  created_at: string;
+  /** API may return created_at (snake) or createdAt (camel) */
+  created_at?: string;
+  createdAt?: string;
 };
 
 export type ProductCreate = {
@@ -38,6 +40,14 @@ async function handleResponse<T>(res: Response): Promise<T> {
   }
   if (res.status === 204) return undefined as T;
   return res.json() as Promise<T>;
+}
+
+export async function listProducts(category?: string): Promise<Product[]> {
+  const url = category
+    ? `${getBaseUrl()}/products?category=${encodeURIComponent(category)}`
+    : `${getBaseUrl()}/products`;
+  const res = await fetch(url);
+  return handleResponse<Product[]>(res);
 }
 
 export async function getProduct(id: number): Promise<Product> {

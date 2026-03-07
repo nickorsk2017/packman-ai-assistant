@@ -19,7 +19,7 @@
       "name": "Run AI Microservice",
       "type": "node-terminal",
       "request": "launch",
-      "command": "cd backend/product-service && pnpm start:dev",
+      "command": "cd backend/ai-service && uv run packman-ai-service",
       "sourceMaps": true
     }
   ]

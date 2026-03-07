@@ -9,7 +9,7 @@ import {
   type AddProductFormData 
 } from "@/features/search";
 import { createProduct } from "@/services/products";
-import { Header, Footer } from "@/shared/ui/layout";
+import { indexDevice } from "@/services/ai";
 
 const CATEGORIES = [{ id: "phones", label: "Phones" as const }];
 const ITEM_COUNT = 100;
@@ -24,11 +24,17 @@ export default function SearchPage() {
   const handleAddProduct = async (data: AddProductFormData) => {
     setAddProductError(null);
     try {
-      await createProduct({
+      const product = await createProduct({
         name: data.name,
         category: data.category,
         price: data.price ? parseFloat(data.price) : 0,
         description: data.description || null,
+      });
+      await indexDevice({
+        name: product.name,
+        description: product.description ?? undefined,
+        price: product.price,
+        category: product.category,
       });
       setAddProductOpen(false);
     } catch (err) {
@@ -39,31 +45,25 @@ export default function SearchPage() {
   };
 
   return (
-    <div className="min-h-screen gradient-mesh bg-[var(--background)] text-[var(--foreground)]">
-      <Header />
+    <>
+      <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+        <SearchPageHeader />
 
-      <main className="pt-24 pb-16">
-        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-          <SearchPageHeader />
-
-          <div className="mt-10 grid gap-8 md:grid-cols-[220px,minmax(0,1fr)]">
-            <SearchFiltersSidebar
-              selectedCategory={selectedCategory}
-              maxPrice={maxPrice}
-              onMaxPriceChange={setMaxPrice}
-            />
-            <SearchPromptSection
-              selectedCategory={selectedCategory}
-              itemCount={ITEM_COUNT}
-              prompt={prompt}
-              onPromptChange={setPrompt}
-              onAddProductClick={() => setAddProductOpen(true)}
-            />
-          </div>
+        <div className="mt-10 grid gap-8 md:grid-cols-[220px,minmax(0,1fr)]">
+          <SearchFiltersSidebar
+            selectedCategory={selectedCategory}
+            maxPrice={maxPrice}
+            onMaxPriceChange={setMaxPrice}
+          />
+          <SearchPromptSection
+            selectedCategory={selectedCategory}
+            itemCount={ITEM_COUNT}
+            prompt={prompt}
+            onPromptChange={setPrompt}
+            onAddProductClick={() => setAddProductOpen(true)}
+          />
         </div>
-      </main>
-
-      <Footer />
+      </div>
 
       <AddProductModal
         open={addProductOpen}
@@ -74,6 +74,6 @@ export default function SearchPage() {
         onSubmit={handleAddProduct}
         error={addProductError}
       />
-    </div>
+    </>
   );
 }

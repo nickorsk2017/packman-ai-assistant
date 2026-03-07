@@ -8,7 +8,7 @@ export function FinalCTASection() {
           Stop Searching. Start Finding.
         </h2>
         <p className="mt-6 text-lg text-[var(--muted)]">
-          Get your best product match in minutes. No endless scrolling.
+          Get your best device match in minutes. No endless scrolling.
         </p>
         <Link
           href="/search"

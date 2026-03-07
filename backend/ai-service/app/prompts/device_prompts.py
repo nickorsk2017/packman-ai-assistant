@@ -5,6 +5,10 @@ Only output the description, no preamble."""
 
 SPECS_PROMPT = """You are a product expert. Given a device or product name, provide technical specifications in a structured format (e.g. key specs as bullet points or short lines: display, processor, storage, battery, etc.). Be factual and concise. Only output the specifications, no preamble."""
 
+TAGS_PROMPT = """You are a product expert. Given a device or product name and optional description, output a short list of tags for search and filtering.
+Tags should be single words or short phrases (e.g. brand name, storage size, color, key features like "good_camera", "fast", "budget").
+Output only the tags separated by commas, nothing else. Use underscores for multi-word tags (e.g. good_camera). Example: Apple, 128GB, white, good_camera, premium"""
+
 INFO_PROMPT = """You are a product expert. Given a device or product name, provide:
 1. A short description (2-4 sentences).
 2. Technical specifications (bullet points or short lines). 400 characters max

@@ -7,7 +7,7 @@ from app.schemas.device import (
     DeviceInfoResponse,
 )
 
-from app.prompts.device_prompts import SPECS_PROMPT, INFO_PROMPT
+from app.prompts.device_prompts import SPECS_PROMPT, INFO_PROMPT, TAGS_PROMPT
 
 
 class DeviceService:
@@ -35,19 +35,6 @@ class DeviceService:
         ).strip()
         return DeviceDescriptionResponse(name=name, description=description)
 
-    def get_specifications(self, name: str) -> DeviceSpecificationsResponse:
-        response = self.client.chat.completions.create(
-            model="gpt-5-mini",
-            messages=[
-                {"role": "system", "content": SPECS_PROMPT},
-                {"role": "user", "content": name.strip() or "Unknown device"},
-            ]
-        )
-        specifications = (
-            response.choices[0].message.content if response.choices else ""
-        ).strip()
-        return DeviceSpecificationsResponse(name=name, specifications=specifications)
-
     def get_info(self, name: str) -> DeviceInfoResponse:
         response = self.client.chat.completions.create(
             model="gpt-5-mini",
@@ -73,6 +60,26 @@ class DeviceService:
             description=description,
             specifications=specifications,
         )
+
+    def get_tags(self, name: str, description: str | None = None) -> list[str]:
+        """Get searchable tags for a device using OpenAI."""
+        user_content = name.strip() or "Unknown device"
+        if description and description.strip():
+            user_content = f"{user_content}\n\nDescription: {description.strip()}"
+        response = self.client.chat.completions.create(
+            model="gpt-5-nano",
+            messages=[
+                {"role": "system", "content": TAGS_PROMPT},
+                {"role": "user", "content": user_content},
+            ],
+        )
+        text = (
+            response.choices[0].message.content if response.choices else ""
+        ).strip()
+        if not text:
+            return [name]
+        tags = [t.strip().replace(" ", "_") for t in text.split(",") if t.strip()]
+        return tags if tags else [name]
 
 
 device_service = DeviceService()

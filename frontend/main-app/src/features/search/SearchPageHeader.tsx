@@ -8,7 +8,7 @@ export function SearchPageHeader() {
       </h1>
       <p className="mt-3 text-[var(--muted)]">
         Describe what you&apos;re looking for in natural language. PackMan will use your prompt and the
-        selected category to find the best product match.
+        selected category to find the best device match.
       </p>
     </div>
   );

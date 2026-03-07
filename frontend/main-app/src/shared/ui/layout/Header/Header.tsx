@@ -3,16 +3,12 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
-
-const navLinks = [
-  { href: "#problem-solution", label: "Problem / Solution" },
-  { href: "#how-it-works", label: "How it works" },
-  { href: "#marketplace", label: "Marketplace" },
-  { href: "#features", label: "Features" }
-];
+import { useHeaderButtons, mainNavLinks } from "./useHeaderButtons";
 
 export function Header() {
   const [open, setOpen] = useState(false);
+  // HOC is currently outdated, we should use the new way to do this
+  const buttons = useHeaderButtons();
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 border-b border-[var(--lilac-200)]/40 bg-[var(--background)]/80 backdrop-blur-md">
@@ -26,23 +22,7 @@ export function Header() {
         </Link>
 
         {/* Desktop nav */}
-        <nav className="hidden items-center gap-6 text-sm font-medium text-[var(--muted)] md:flex">
-          {navLinks.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="hover:text-[var(--lilac-600)] transition-colors"
-            >
-              {item.label}
-            </Link>
-          ))}
-          <Link
-            href="/search"
-            className="rounded-full bg-[var(--lilac-500)] px-4 py-2 text-white hover:bg-[var(--lilac-600)] transition-colors"
-          >
-            Try AI Search
-          </Link>
-        </nav>
+        {buttons}
 
         {/* Mobile menu button */}
         <button
@@ -76,7 +56,7 @@ export function Header() {
       {open && (
         <div className="border-t border-[var(--lilac-200)]/40 bg-[var(--background)]/95 backdrop-blur-md md:hidden">
           <nav className="mx-auto flex max-w-6xl flex-col gap-1 px-4 py-3 text-sm font-medium text-[var(--foreground)]">
-            {navLinks.map((item) => (
+            {mainNavLinks.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
