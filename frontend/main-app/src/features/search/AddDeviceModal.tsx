@@ -6,7 +6,7 @@ import { cx } from "@/libs/utils";
 
 const CATEGORIES = [{ id: "phones", label: "Phones" }];
 
-export type AddProductFormData = {
+export type AddDeviceFormData = {
   name: string;
   category: string;
   price: string;
@@ -14,14 +14,14 @@ export type AddProductFormData = {
   condition: string;
 };
 
-type AddProductModalProps = {
+type AddDeviceModalProps = {
   open: boolean;
   onClose: () => void;
-  onSubmit?: (data: AddProductFormData) => Promise<void> | void;
+  onSubmit?: (data: AddDeviceFormData) => Promise<void> | void;
   error?: string | null;
 };
 
-const initialForm: AddProductFormData = {
+const initialForm: AddDeviceFormData = {
   name: "",
   category: CATEGORIES[0].id,
   price: "",
@@ -29,8 +29,8 @@ const initialForm: AddProductFormData = {
   condition: "",
 };
 
-export function AddProductModal({ open, onClose, onSubmit, error }: AddProductModalProps) {
-  const [form, setForm] = useState<AddProductFormData>(initialForm);
+export function AddDeviceModal({ open, onClose, onSubmit, error }: AddDeviceModalProps) {
+  const [form, setForm] = useState<AddDeviceFormData>(initialForm);
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
@@ -65,21 +65,21 @@ export function AddProductModal({ open, onClose, onSubmit, error }: AddProductMo
       className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 backdrop-blur-sm px-4"
       role="dialog"
       aria-modal="true"
-      aria-labelledby="add-product-title"
+      aria-labelledby="add-device-title"
     >
       <div
         className={`max-h-[700px] flex w-full max-w-[600px] flex-col rounded-3xl bg-white p-6 shadow-2xl sm:p-8 ${containerHeightClass}`}
       >
-        <h2 id="add-product-title" className="text-xl font-semibold text-[var(--foreground)] sm:text-2xl">
-          Add Product
+        <h2 id="add-device-title" className="text-xl font-semibold text-[var(--foreground)] sm:text-2xl">
+          Add Device
         </h2>
         <p className="mt-1 text-sm text-[var(--muted)]">
-          Add a product to the catalog for AI search.
+          Add a device to the catalog for AI search.
         </p>
 
         <p className="mt-3 text-xs font-medium uppercase tracking-wide text-[var(--muted)]">
           Step {step} of 3 ·{" "}
-          {step === 1 && "Product name"}
+          {step === 1 && "Device name"}
           {step === 2 && "Description"}
           {step === 3 && "Price & condition"}
         </p>
@@ -96,13 +96,13 @@ export function AddProductModal({ open, onClose, onSubmit, error }: AddProductMo
               <div className="space-y-4">
                 <div>
                   <label
-                    htmlFor="product-name"
+                    htmlFor="device-name"
                     className="block text-xs font-semibold uppercase tracking-wider text-[var(--muted)]"
                   >
-                    Product name
+                    Device name
                   </label>
                   <input
-                    id="product-name"
+                    id="device-name"
                     type="text"
                     required
                     value={form.name}
@@ -119,13 +119,13 @@ export function AddProductModal({ open, onClose, onSubmit, error }: AddProductMo
                 {!aiLoading && (
                   <div className="flex-1 flex flex-col">
                     <label
-                      htmlFor="product-description"
+                      htmlFor="device-description"
                       className="block text-xs font-semibold uppercase tracking-wider text-[var(--muted)]"
                     >
                       Description <span className="font-normal text-[var(--muted)]">(optional)</span>
                     </label>
                     <textarea
-                      id="product-description"
+                      id="device-description"
                       value={form.description}
                       onChange={(e) => setForm((prev) => ({ ...prev, description: e.target.value }))}
                       placeholder="Brief description or key features"
@@ -151,13 +151,13 @@ export function AddProductModal({ open, onClose, onSubmit, error }: AddProductMo
               <div className="space-y-4">
                 <div>
                   <label
-                    htmlFor="product-price"
+                    htmlFor="device-price"
                     className="block text-xs font-semibold uppercase tracking-wider text-[var(--muted)]"
                   >
                     Price (USD)
                   </label>
                   <input
-                    id="product-price"
+                    id="device-price"
                     type="number"
                     min={0}
                     step={0.01}
@@ -170,13 +170,13 @@ export function AddProductModal({ open, onClose, onSubmit, error }: AddProductMo
 
                 <div>
                   <label
-                    htmlFor="product-condition"
+                    htmlFor="device-condition"
                     className="block text-xs font-semibold uppercase tracking-wider text-[var(--muted)]"
                   >
                     Condition
                   </label>
                   <select
-                    id="product-condition"
+                    id="device-condition"
                     value={form.condition}
                     onChange={(e) => setForm((prev) => ({ ...prev, condition: e.target.value }))}
                     className="mt-1 w-full rounded-xl border border-[var(--lilac-200)] bg-white px-3 py-2 text-sm text-[var(--foreground)] shadow-sm outline-none focus:border-[var(--lilac-500)] focus:ring-2 focus:ring-[var(--lilac-300)]"
@@ -271,7 +271,7 @@ export function AddProductModal({ open, onClose, onSubmit, error }: AddProductMo
                     aiLoading && "opacity-60 cursor-not-allowed",
                   )}
                 >
-                  Add Product
+                  Add Device
                 </button>
               )}
             </div>
@@ -281,4 +281,3 @@ export function AddProductModal({ open, onClose, onSubmit, error }: AddProductMo
     </div>
   );
 }
-

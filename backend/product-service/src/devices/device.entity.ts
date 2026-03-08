@@ -6,7 +6,7 @@ import {
 } from "typeorm";
 
 @Entity({ name: "products" })
-export class Product {
+export class Device {
   @PrimaryGeneratedColumn()
   id!: number;
 
@@ -25,4 +25,3 @@ export class Product {
   @CreateDateColumn({ name: "created_at" })
   createdAt!: Date;
 }
-

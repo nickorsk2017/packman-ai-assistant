@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { listProducts, deleteProduct, type Product } from "@/services/products";
+import { listDevices, deleteDevice, type Device } from "@/services/devices";
 
 function formatDate(iso: string) {
   try {
@@ -16,25 +16,25 @@ function formatDate(iso: string) {
   }
 }
 
-function getCreatedAt(p: Product): string {
-  return p.created_at ?? p.createdAt ?? "";
+function getCreatedAt(d: Device): string {
+  return d.created_at ?? d.createdAt ?? "";
 }
 
 function DeviceCard({
-  product,
+  device,
   onDelete,
 }: {
-  product: Product;
+  device: Device;
   onDelete: (id: number) => void;
 }) {
   const [deleting, setDeleting] = useState(false);
 
   const handleDelete = async () => {
-    if (!confirm(`Remove "${product.name}" from your devices?`)) return;
+    if (!confirm(`Remove "${device.name}" from your devices?`)) return;
     setDeleting(true);
     try {
-      await deleteProduct(product.id);
-      onDelete(product.id);
+      await deleteDevice(device.id);
+      onDelete(device.id);
     } finally {
       setDeleting(false);
     }
@@ -45,22 +45,22 @@ function DeviceCard({
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0 flex-1">
           <h3 className="text-lg font-semibold text-[var(--foreground)] truncate">
-            {product.name}
+            {device.name}
           </h3>
           <p className="mt-0.5 text-sm text-[var(--muted)] capitalize">
-            {product.category}
+            {device.category}
           </p>
-          {product.description && (
+          {device.description && (
             <p className="mt-2 text-sm text-[var(--muted)] line-clamp-2">
-              {product.description}
+              {device.description}
             </p>
           )}
           <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
             <span className="font-medium text-[var(--lilac-700)]">
-              ${Number(product.price).toFixed(2)}
+              ${Number(device.price).toFixed(2)}
             </span>
             <span className="text-[var(--muted)]">
-              Added {formatDate(getCreatedAt(product) || "—")}
+              Added {formatDate(getCreatedAt(device) || "—")}
             </span>
           </div>
         </div>
@@ -78,16 +78,16 @@ function DeviceCard({
 }
 
 export default function MyDevicesPage() {
-  const [products, setProducts] = useState<Product[]>([]);
+  const [devices, setDevices] = useState<Device[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const loadProducts = async () => {
+  const loadDevices = async () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await listProducts();
-      setProducts(data);
+      const data = await listDevices();
+      setDevices(data);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to load devices");
     } finally {
@@ -96,11 +96,11 @@ export default function MyDevicesPage() {
   };
 
   useEffect(() => {
-    loadProducts();
+    loadDevices();
   }, []);
 
   const removeFromList = (id: number) => {
-    setProducts((prev) => prev.filter((p) => p.id !== id));
+    setDevices((prev) => prev.filter((d) => d.id !== id));
   };
 
   return (
@@ -132,7 +132,7 @@ export default function MyDevicesPage() {
           {error}
           <button
             type="button"
-            onClick={loadProducts}
+            onClick={loadDevices}
             className="mt-2 font-medium underline"
           >
             Try again
@@ -140,7 +140,7 @@ export default function MyDevicesPage() {
         </div>
       )}
 
-      {!loading && !error && products.length === 0 && (
+      {!loading && !error && devices.length === 0 && (
         <div className="rounded-2xl border border-[var(--lilac-200)]/60 bg-white/60 p-10 text-center">
           <p className="text-[var(--muted)]">You haven&apos;t added any devices yet.</p>
           <Link
@@ -152,11 +152,11 @@ export default function MyDevicesPage() {
         </div>
       )}
 
-      {!loading && !error && products.length > 0 && (
+      {!loading && !error && devices.length > 0 && (
         <ul className="space-y-4">
-          {products.map((product) => (
-            <li key={product.id}>
-              <DeviceCard product={product} onDelete={removeFromList} />
+          {devices.map((device) => (
+            <li key={device.id}>
+              <DeviceCard device={device} onDelete={removeFromList} />
             </li>
           ))}
         </ul>

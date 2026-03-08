@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "PackMan — Найди и купи товар всего за пару минут в один клик",
+  title: "PackMan — Find and buy devices in minutes",
   description:
     "AI-powered marketplace assistant. Tell PackMan what you need — get the best smartphone match instantly. Buy, sell, and exchange with others.",
 };

@@ -7,7 +7,7 @@ from app.schemas.device import (
     DeviceInfoResponse,
 )
 
-from app.prompts.device_prompts import SPECS_PROMPT, INFO_PROMPT, TAGS_PROMPT
+from app.prompts.device_prompts import INFO_PROMPT, TAGS_PROMPT
 
 
 class DeviceService:
@@ -61,11 +61,18 @@ class DeviceService:
             specifications=specifications,
         )
 
-    def get_tags(self, name: str, description: str | None = None) -> list[str]:
-        """Get searchable tags for a device using OpenAI."""
+    def get_tags(
+        self,
+        name: str,
+        description: str | None = None,
+        price: float | None = None,
+    ) -> list[str]:
+        """Get searchable tags for a device using OpenAI. Includes seller price when provided."""
         user_content = name.strip() or "Unknown device"
         if description and description.strip():
             user_content = f"{user_content}\n\nDescription: {description.strip()}"
+        if price is not None:
+            user_content = f"{user_content}\n\nSeller price: {price} USD"
         response = self.client.chat.completions.create(
             model="gpt-5-nano",
             messages=[

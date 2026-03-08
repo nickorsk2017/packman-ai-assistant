@@ -5,11 +5,11 @@ import {
   SearchPageHeader, 
   SearchFiltersSidebar, 
   SearchPromptSection, 
-  AddProductModal, 
-  type AddProductFormData 
+  AddDeviceModal, 
+  type AddDeviceFormData 
 } from "@/features/search";
-import { createProduct } from "@/services/products";
-import { indexDevice } from "@/services/ai";
+import { createDevice } from "@/services/devices";
+import { indexDevice, searchDevices, type DeviceSearchResult } from "@/services/ai";
 
 const CATEGORIES = [{ id: "phones", label: "Phones" as const }];
 const ITEM_COUNT = 100;
@@ -18,28 +18,51 @@ export default function SearchPage() {
   const [prompt, setPrompt] = useState("");
   const [maxPrice, setMaxPrice] = useState<string>("");
   const [selectedCategory] = useState(CATEGORIES[0]);
-  const [addProductOpen, setAddProductOpen] = useState(false);
-  const [addProductError, setAddProductError] = useState<string | null>(null);
+  const [addDeviceOpen, setAddDeviceOpen] = useState(false);
+  const [addDeviceError, setAddDeviceError] = useState<string | null>(null);
+  const [askLoading, setAskLoading] = useState(false);
+  const [askError, setAskError] = useState<string | null>(null);
+  const [bestMatch, setBestMatch] = useState<DeviceSearchResult | null>(null);
+  const [noMatchFound, setNoMatchFound] = useState(false);
 
-  const handleAddProduct = async (data: AddProductFormData) => {
-    setAddProductError(null);
+  const handleAskPackMan = async () => {
+    const q = prompt.trim();
+    if (!q) return;
+    setAskError(null);
+    setBestMatch(null);
+    setNoMatchFound(false);
+    setAskLoading(true);
     try {
-      const product = await createProduct({
+      const res = await searchDevices(q, 1);
+      const top = res.devices[0] ?? null;
+      setBestMatch(top);
+      setNoMatchFound(!top);
+    } catch (err) {
+      setAskError(err instanceof Error ? err.message : "Search failed");
+    } finally {
+      setAskLoading(false);
+    }
+  };
+
+  const handleAddDevice = async (data: AddDeviceFormData) => {
+    setAddDeviceError(null);
+    try {
+      const device = await createDevice({
         name: data.name,
         category: data.category,
         price: data.price ? parseFloat(data.price) : 0,
         description: data.description || null,
       });
       await indexDevice({
-        name: product.name,
-        description: product.description ?? undefined,
-        price: product.price,
-        category: product.category,
+        name: device.name,
+        description: device.description ?? undefined,
+        price: device.price,
+        category: device.category,
       });
-      setAddProductOpen(false);
+      setAddDeviceOpen(false);
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Failed to add product";
-      setAddProductError(message);
+      const message = err instanceof Error ? err.message : "Failed to add device";
+      setAddDeviceError(message);
       throw err;
     }
   };
@@ -60,19 +83,24 @@ export default function SearchPage() {
             itemCount={ITEM_COUNT}
             prompt={prompt}
             onPromptChange={setPrompt}
-            onAddProductClick={() => setAddProductOpen(true)}
+            onAddDeviceClick={() => setAddDeviceOpen(true)}
+            onAskClick={handleAskPackMan}
+            askLoading={askLoading}
+            bestMatch={bestMatch}
+            askError={askError}
+            noMatchFound={noMatchFound}
           />
         </div>
       </div>
 
-      <AddProductModal
-        open={addProductOpen}
+      <AddDeviceModal
+        open={addDeviceOpen}
         onClose={() => {
-          setAddProductOpen(false);
-          setAddProductError(null);
+          setAddDeviceOpen(false);
+          setAddDeviceError(null);
         }}
-        onSubmit={handleAddProduct}
-        error={addProductError}
+        onSubmit={handleAddDevice}
+        error={addDeviceError}
       />
     </>
   );

@@ -3,11 +3,14 @@ Given a device or product name, provide a clear, concise description (2-4 senten
 Focus on what the product is, key use cases, and main audience.
 Only output the description, no preamble."""
 
-SPECS_PROMPT = """You are a product expert. Given a device or product name, provide technical specifications in a structured format (e.g. key specs as bullet points or short lines: display, processor, storage, battery, etc.). Be factual and concise. Only output the specifications, no preamble."""
-
-TAGS_PROMPT = """You are a product expert. Given a device or product name and optional description, output a short list of tags for search and filtering.
-Tags should be single words or short phrases (e.g. brand name, storage size, color, key features like "good_camera", "fast", "budget").
-Output only the tags separated by commas, nothing else. Use underscores for multi-word tags (e.g. good_camera). Example: Apple, 128GB, white, good_camera, premium"""
+TAGS_PROMPT = """You are a product expert. Given a device or product name, optional description, and optional seller price in USD, output a short list of tags for search and filtering.
+Tags must include:
+- Brand name, storage size, battery capacity, color, key features, camera quality (good_camera, average_camera, etc.), budget type (budget, mid_range, premium), screen size (small, medium, large).
+- Seller price e.g. price_500, price_1299 and cheap_price, premium_price, budget_price, mid_range_price.
+- User type (students, gamers, business_users, home, travelers, music_lovers, video_editors, photographers).
+- OS (Android, iOS).
+- Condition (condition_new, condition_used, condition_refurbished, condition_like_new).
+Output only the tags separated by commas, nothing else. Use underscores for multi-word tags (e.g. good_camera). Always include the seller price tag when price is provided. Example: Apple, 128GB, white, good_camera, premium, price_900"""
 
 INFO_PROMPT = """You are a product expert. Given a device or product name, provide:
 1. A short description (2-4 sentences).

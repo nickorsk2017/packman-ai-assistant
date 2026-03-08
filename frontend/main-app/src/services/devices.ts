@@ -1,6 +1,6 @@
 const getBaseUrl = () => "http://localhost:3001/api/v1"
 
-export type Product = {
+export type Device = {
   id: number;
   name: string;
   category: string;
@@ -11,14 +11,14 @@ export type Product = {
   createdAt?: string;
 };
 
-export type ProductCreate = {
+export type DeviceCreate = {
   name: string;
   category: string;
   price: number;
   description?: string | null;
 };
 
-export type ProductUpdate = {
+export type DeviceUpdate = {
   name?: string;
   category?: string;
   price?: number;
@@ -42,39 +42,38 @@ async function handleResponse<T>(res: Response): Promise<T> {
   return res.json() as Promise<T>;
 }
 
-export async function listProducts(category?: string): Promise<Product[]> {
+export async function listDevices(category?: string): Promise<Device[]> {
   const url = category
-    ? `${getBaseUrl()}/products?category=${encodeURIComponent(category)}`
-    : `${getBaseUrl()}/products`;
+    ? `${getBaseUrl()}/devices?category=${encodeURIComponent(category)}`
+    : `${getBaseUrl()}/devices`;
   const res = await fetch(url);
-  return handleResponse<Product[]>(res);
+  return handleResponse<Device[]>(res);
 }
 
-export async function getProduct(id: number): Promise<Product> {
-  const res = await fetch(`${getBaseUrl()}/products/${id}`);
-  return handleResponse<Product>(res);
+export async function getDevice(id: number): Promise<Device> {
+  const res = await fetch(`${getBaseUrl()}/devices/${id}`);
+  return handleResponse<Device>(res);
 }
 
-export async function createProduct(data: ProductCreate): Promise<Product> {
-  const res = await fetch(`${getBaseUrl()}/products`, {
+export async function createDevice(data: DeviceCreate): Promise<Device> {
+  const res = await fetch(`${getBaseUrl()}/devices`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
-  return handleResponse<Product>(res);
+  return handleResponse<Device>(res);
 }
 
-export async function updateProduct(id: number, data: ProductUpdate): Promise<Product> {
-  const res = await fetch(`${getBaseUrl()}/products/${id}`, {
+export async function updateDevice(id: number, data: DeviceUpdate): Promise<Device> {
+  const res = await fetch(`${getBaseUrl()}/devices/${id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
-  return handleResponse<Product>(res);
+  return handleResponse<Device>(res);
 }
 
-export async function deleteProduct(id: number): Promise<void> {
-  const res = await fetch(`${getBaseUrl()}/products/${id}`, { method: "DELETE" });
+export async function deleteDevice(id: number): Promise<void> {
+  const res = await fetch(`${getBaseUrl()}/devices/${id}`, { method: "DELETE" });
   return handleResponse<void>(res);
 }
-

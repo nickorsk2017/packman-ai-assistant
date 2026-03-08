@@ -42,7 +42,11 @@ def get_device_info(
 def index_device(body: DeviceAddRequest) -> DeviceIndexResponse:
     """Add a device to the FAISS vector database. OpenAI generates tags from name/description."""
     try:
-        tags = device_service.get_tags(body.name, body.description)
+        tags = device_service.get_tags(body.name, body.description, body.price)
+        if body.price is not None:
+            price_tag = f"price_{int(body.price)}"
+            if price_tag not in tags:
+                tags = [*tags, price_tag]
         vector_store_service.add_device(
             name=body.name,
             tags=tags,

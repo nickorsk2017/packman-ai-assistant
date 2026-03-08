@@ -35,7 +35,8 @@ dev = [
 
 [project.scripts]
 packman-ai-service = "app.main:main"
+packman-clear-faiss = "app.scripts.clear_faiss:main"
 
 [tool.setuptools]
-packages = ["app"]
+packages = ["app", "app.scripts"]
 

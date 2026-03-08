@@ -1,7 +1,7 @@
 export function MarketplaceSection() {
   const items = [
     {
-      title: "Find the perfect product in under a minute.",
+      title: "Find the perfect device in under a minute.",
       description: "Describe your needs in simple words — PackMan finds it in seconds.",
       icon: "⏱",
     },

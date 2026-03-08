@@ -1,6 +1,6 @@
 import { IsNotEmpty, IsNumber, IsOptional, IsString, Min } from "class-validator";
 
-export class CreateProductDto {
+export class CreateDeviceDto {
   @IsString()
   @IsNotEmpty()
   name!: string;
@@ -17,4 +17,3 @@ export class CreateProductDto {
   @IsOptional()
   description?: string | null;
 }
-

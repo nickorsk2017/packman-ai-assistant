@@ -1,5 +1,7 @@
 "use client";
 
+import type { DeviceSearchResult } from "@/services/ai";
+
 type Category = { id: string; label: string };
 
 type SearchPromptSectionProps = {
@@ -7,7 +9,12 @@ type SearchPromptSectionProps = {
   itemCount: number;
   prompt: string;
   onPromptChange: (value: string) => void;
-  onAddProductClick: () => void;
+  onAddDeviceClick: () => void;
+  onAskClick: () => void;
+  askLoading?: boolean;
+  bestMatch?: DeviceSearchResult | null;
+  askError?: string | null;
+  noMatchFound?: boolean;
 };
 
 export function SearchPromptSection({
@@ -15,7 +22,12 @@ export function SearchPromptSection({
   itemCount,
   prompt,
   onPromptChange,
-  onAddProductClick,
+  onAddDeviceClick,
+  onAskClick,
+  askLoading = false,
+  bestMatch = null,
+  askError = null,
+  noMatchFound = false,
 }: SearchPromptSectionProps) {
   return (
     <section className="rounded-2xl border border-[var(--lilac-200)]/70 bg-white/90 p-6 shadow-sm">
@@ -31,10 +43,10 @@ export function SearchPromptSection({
         </div>
         <button
           type="button"
-          onClick={onAddProductClick}
+          onClick={onAddDeviceClick}
           className="inline-flex items-center justify-center rounded-xl border border-[var(--lilac-300)] bg-white px-4 py-2 text-sm font-medium text-[var(--lilac-700)] shadow-sm hover:bg-[var(--lilac-50)]"
         >
-          Add Product
+          Add Device
         </button>
       </div>
 
@@ -54,12 +66,44 @@ export function SearchPromptSection({
         </p>
         <button
           type="button"
+          onClick={onAskClick}
+          disabled={!prompt.trim() || askLoading}
           className="inline-flex items-center justify-center rounded-xl bg-[var(--lilac-500)] px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-[var(--lilac-600)] disabled:opacity-60"
-          disabled
         >
-          Ask PackMan (demo)
+          {askLoading ? "Finding…" : "Ask PackMan (demo)"}
         </button>
       </div>
+
+      {askError && (
+        <p className="mt-3 text-sm text-red-600">
+          {askError}
+        </p>
+      )}
+
+      {noMatchFound && !askError && (
+        <p className="mt-3 text-sm text-[var(--muted)]">
+          No devices match your prompt. Try different keywords or add more devices.
+        </p>
+      )}
+
+      {bestMatch && !askError && (
+        <div className="mt-4 rounded-xl border border-[var(--lilac-200)] bg-[var(--lilac-50)]/50 p-4">
+          <p className="text-xs font-semibold uppercase tracking-wider text-[var(--muted)]">
+            Best match
+          </p>
+          <p className="mt-1 font-semibold text-[var(--foreground)]">{bestMatch.name}</p>
+          {bestMatch.price != null && (
+            <p className="mt-0.5 text-sm text-[var(--lilac-700)]">
+              ${Number(bestMatch.price).toFixed(2)}
+            </p>
+          )}
+          {bestMatch.tags?.length > 0 && (
+            <p className="mt-1 text-xs text-[var(--muted)]">
+              {bestMatch.tags.join(" · ")}
+            </p>
+          )}
+        </div>
+      )}
 
       <p className="mt-3 text-xs text-[var(--muted)]">
         This is a visual MVP of the AI search experience.

@@ -33,10 +33,10 @@ export function IntroModal() {
         <div className="mt-4 space-y-3 text-sm leading-relaxed text-[var(--muted)] sm:text-base">
 
           <p>
-            The AI-powered assistant for fast product discovery.
+            The AI-powered assistant for fast device discovery.
           </p>
           <p>
-            It helps users discover the right product in under a minute.
+            It helps users discover the right device in under a minute.
           </p>
           <p>This version is built for presentation and technical evaluation purposes.</p>
 

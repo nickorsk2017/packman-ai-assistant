@@ -24,7 +24,7 @@ async function bootstrap() {
   const port = process.env.PORT || 8000;
   await app.listen(port);
   // eslint-disable-next-line no-console
-  console.log(`Product service listening on http://localhost:${port}/api/v1`);
+  console.log(`Device service listening on http://localhost:${port}/api/v1`);
 }
 
 bootstrap();

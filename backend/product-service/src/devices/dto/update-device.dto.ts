@@ -1,6 +1,6 @@
 import { IsNumber, IsOptional, IsString, Min } from "class-validator";
 
-export class UpdateProductDto {
+export class UpdateDeviceDto {
   @IsString()
   @IsOptional()
   name?: string;
@@ -18,4 +18,3 @@ export class UpdateProductDto {
   @IsOptional()
   description?: string | null;
 }
-
