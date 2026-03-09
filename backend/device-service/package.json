@@ -8,10 +8,10 @@
     "start:dev": "ts-node-dev --respawn --transpile-only src/main.ts",
     "build": "tsc -p tsconfig.build.json",
     "typeorm": "ts-node ./node_modules/typeorm/cli.js",
-    "migration:generate": "pnpm typeorm -- migration:generate -d ormconfig.ts",
-    "migration:run": "pnpm typeorm -- migration:run -d ormconfig.ts",
-    "migration:revert": "pnpm typeorm -- migration:revert -d ormconfig.ts",
-    "migration:show": "pnpm  typeorm -- migration:show -d ormconfig.ts"
+    "migration:generate": "pnpm typeorm migration:generate -d ormconfig.ts",
+    "migration:run": "pnpm typeorm migration:run -d ormconfig.ts",
+    "migration:revert": "pnpm typeorm migration:revert -d ormconfig.ts",
+    "migration:show": "pnpm typeorm migration:show -d ormconfig.ts"
   },
   "dependencies": {
     "@nestjs/common": "^10.4.10",

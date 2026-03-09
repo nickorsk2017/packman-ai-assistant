@@ -6,11 +6,6 @@ class DeviceDescriptionResponse(BaseModel):
     description: str
 
 
-class DeviceSpecificationsResponse(BaseModel):
-    name: str
-    specifications: str
-
-
 class DeviceInfoResponse(BaseModel):
     name: str
     description: str

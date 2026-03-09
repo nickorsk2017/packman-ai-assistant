@@ -3,11 +3,10 @@ from openai import OpenAI
 from app.config import settings
 from app.schemas.device import (
     DeviceDescriptionResponse,
-    DeviceSpecificationsResponse,
     DeviceInfoResponse,
 )
 
-from app.prompts.device_prompts import INFO_PROMPT, TAGS_PROMPT
+from app.prompts.device_prompts import GET_DEVICE_INFO_PROMPT, TAGS_PROMPT
 
 
 class DeviceService:
@@ -26,12 +25,12 @@ class DeviceService:
         response = self.client.chat.completions.create(
             model="gpt-5-mini",
             messages=[
-                {"role": "system", "content": INFO_PROMPT},
+                {"role": "system", "content": GET_DEVICE_INFO_PROMPT},
                 {"role": "user", "content": name.strip() or "Unknown device"},
             ]
         )
         description = (
-            response.choices[0].message.content if response.choices else ""
+            (response.choices[0].message.content if response.choices else "") or ""
         ).strip()
         return DeviceDescriptionResponse(name=name, description=description)
 
@@ -39,12 +38,12 @@ class DeviceService:
         response = self.client.chat.completions.create(
             model="gpt-5-mini",
             messages=[
-                {"role": "system", "content": INFO_PROMPT},
+                {"role": "system", "content": GET_DEVICE_INFO_PROMPT},
                 {"role": "user", "content": name.strip() or "Unknown device"},
             ]
         )
         text = (
-            response.choices[0].message.content if response.choices else ""
+            (response.choices[0].message.content if response.choices else "") or ""
         ).strip()
         description = ""
         specifications = ""
@@ -80,9 +79,8 @@ class DeviceService:
                 {"role": "user", "content": user_content},
             ],
         )
-        text = (
-            response.choices[0].message.content if response.choices else ""
-        ).strip()
+        raw = response.choices[0].message.content if response.choices else ""
+        text = (raw or "").strip()
         if not text:
             return [name]
         tags = [t.strip().replace(" ", "_") for t in text.split(",") if t.strip()]

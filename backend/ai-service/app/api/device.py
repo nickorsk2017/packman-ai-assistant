@@ -2,7 +2,6 @@ from fastapi import APIRouter, HTTPException, Query
 
 from app.schemas.device import (
     DeviceDescriptionResponse,
-    DeviceSpecificationsResponse,
     DeviceInfoResponse,
     DeviceAddRequest,
     DeviceIndexResponse,
@@ -18,7 +17,7 @@ router = APIRouter(prefix="/device", tags=["device"])
 
 @router.get("/description", response_model=DeviceDescriptionResponse)
 def get_device_description(
-    name: str = Query(..., min_length=1, description="Device or product name"),
+    name: str = Query(..., min_length=1, description="Device name"),
 ) -> DeviceDescriptionResponse:
     """Get a short description of a device by its name (OpenAI)."""
     try:
@@ -29,7 +28,7 @@ def get_device_description(
 
 @router.get("/info", response_model=DeviceInfoResponse)
 def get_device_info(
-    name: str = Query(..., min_length=1, description="Device or product name"),
+    name: str = Query(..., min_length=1, description="Device name"),
 ) -> DeviceInfoResponse:
     """Get both description and specifications for a device by its name (OpenAI)."""
     try:

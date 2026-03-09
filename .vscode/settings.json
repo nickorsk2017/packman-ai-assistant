@@ -10,29 +10,5 @@
   },
   "files.eol": "\n",
   "javascript.preferences.importModuleSpecifier": "relative",
-  "typescript.preferences.importModuleSpecifier": "relative",
-  "github.copilot.chat.codeGeneration.instructions": [
-    {
-      "file": "./.vscode/daisyui.md"
-    }
-  ],
-  "mcp": {
-    "inputs": [],
-    "servers": {
-      "mcp-server-time": {
-        "command": "python",
-        "args": [
-          "-m",
-          "mcp_server_time",
-          "--local-timezone=America/Los_Angeles"
-        ],
-        "env": {}
-      },
-      "Context7": {
-        "type": "stdio",
-        "command": "npx",
-        "args": ["-y", "@upstash/context7-mcp@latest"]
-      }
-    }
-  }
+  "typescript.preferences.importModuleSpecifier": "relative"
 }

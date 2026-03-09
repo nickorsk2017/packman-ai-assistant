@@ -2,10 +2,11 @@
 
 from pathlib import Path
 
+from pydantic import SecretStr
 from langchain_core.documents import Document
 from langchain_community.vectorstores import FAISS
 from langchain_openai import OpenAIEmbeddings, ChatOpenAI
-from langchain.chains import RetrievalQA
+from langchain.chains.retrieval_qa.base import RetrievalQA
 
 from app.config import settings
 
@@ -23,7 +24,7 @@ class VectorStoreService:
         if self._embeddings is None:
             if not settings.openai_api_key:
                 raise ValueError("OPENAI_API_KEY is not set")
-            self._embeddings = OpenAIEmbeddings(openai_api_key=settings.openai_api_key)
+            self._embeddings = OpenAIEmbeddings(api_key=SecretStr(settings.openai_api_key))
         return self._embeddings
 
     def _load(self) -> FAISS | None:
@@ -78,6 +79,7 @@ class VectorStoreService:
         if vectorstore is None:
             return []
         docs = vectorstore.similarity_search(prompt, k=k)
+        
         return [
             {
                 "name": d.metadata.get("name", ""),
@@ -97,10 +99,13 @@ class VectorStoreService:
             search_type="similarity",
             search_kwargs={"k": k},
         )
+        if not settings.openai_api_key:
+            raise ValueError("OPENAI_API_KEY is not set")
+
         llm = ChatOpenAI(
-            model="gpt-5-mini",
+            model="gpt-5-mini", 
             temperature=0,
-            openai_api_key=settings.openai_api_key,
+            api_key=SecretStr(settings.openai_api_key)
         )
         qa_chain = RetrievalQA.from_chain_type(
             llm=llm,

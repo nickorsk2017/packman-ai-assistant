@@ -1,9 +1,4 @@
-DESCRIPTION_PROMPT = """You are a product expert.
-Given a device or product name, provide a clear, concise description (2-4 sentences) suitable for a product catalog. 
-Focus on what the product is, key use cases, and main audience.
-Only output the description, no preamble."""
-
-TAGS_PROMPT = """You are a product expert. Given a device or product name, optional description, and optional seller price in USD, output a short list of tags for search and filtering.
+TAGS_PROMPT = """You are a device expert. Given a device or device name, optional description, and optional seller price in USD, output a short list of tags for search and filtering.
 Tags must include:
 - Brand name, storage size, battery capacity, color, key features, camera quality (good_camera, average_camera, etc.), budget type (budget, mid_range, premium), screen size (small, medium, large).
 - Seller price e.g. price_500, price_1299 and cheap_price, premium_price, budget_price, mid_range_price.
@@ -12,7 +7,7 @@ Tags must include:
 - Condition (condition_new, condition_used, condition_refurbished, condition_like_new).
 Output only the tags separated by commas, nothing else. Use underscores for multi-word tags (e.g. good_camera). Always include the seller price tag when price is provided. Example: Apple, 128GB, white, good_camera, premium, price_900"""
 
-INFO_PROMPT = """You are a product expert. Given a device or product name, provide:
+GET_DEVICE_INFO_PROMPT = """You are a device expert. Given a device or device name, provide:
 1. A short description (2-4 sentences).
 2. Technical specifications (bullet points or short lines). 400 characters max
 3. Best for. Identify the target audience. Use list types of users like "Gamers", "Business users", "Students", "Home users", "Travelers", "Music lovers", "Video editors", "Photographers". 
@@ -38,5 +33,5 @@ IMPORTANT RULES:
 - Plain text only.
 - SPECIFICATIONS should have only the key important specs (display, processor, storage, battery, etc.) - 400 characters max. 
 - BEST FOR is most important.
-- Do not add markdown, symbols, or explanations. Do not repeat the product name unnecessarily.
+- Do not add markdown, symbols, or explanations. Do not repeat the device name unnecessarily.
 """

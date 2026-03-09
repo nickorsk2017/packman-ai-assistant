@@ -9,10 +9,10 @@
       "sourceMaps": true
     },
     {
-      "name": "Run Product Microservice",
+      "name": "Run Device Microservice",
       "type": "node-terminal",
       "request": "launch",
-      "command": "cd backend/product-service && pnpm start:dev",
+      "command": "cd backend/device-service && pnpm start:dev",
       "sourceMaps": true
     },
     {

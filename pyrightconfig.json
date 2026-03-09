@@ -1,0 +1,10 @@
+{
+  "executionEnvironments": [
+    {
+      "root": "backend/ai-service",
+      "venvPath": "backend/ai-service",
+      "venv": ".venv",
+      "extraPaths": ["backend/ai-service/.venv/lib/python3.13/site-packages"]
+    }
+  ]
+}
