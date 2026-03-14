@@ -1,10 +1,11 @@
-"""FAISS vector store for device search using LangChain."""
-
-from pathlib import Path
+"""Qdrant vector store for device search using LangChain."""
 
 from pydantic import SecretStr
+from qdrant_client import QdrantClient
+from qdrant_client.http.exceptions import ResponseHandlingException
+from qdrant_client.http.models import Distance, VectorParams, Filter, FieldCondition, MatchValue, Range
 from langchain_core.documents import Document
-from langchain_community.vectorstores import FAISS
+from langchain_qdrant import QdrantVectorStore
 from langchain_openai import OpenAIEmbeddings, ChatOpenAI
 from langchain.chains.retrieval_qa.base import RetrievalQA
 
@@ -12,12 +13,12 @@ from app.config import settings
 
 
 class VectorStoreService:
-    """Manages FAISS index for devices: add devices, search by prompt."""
+    """Manages Qdrant index for devices: add devices, search by prompt."""
 
     def __init__(self) -> None:
         self._embeddings: OpenAIEmbeddings | None = None
-        self._vectorstore: FAISS | None = None
-        self._index_path = Path(settings.faiss_index_path)
+        self._client: QdrantClient | None = None
+        self._vectorstore: QdrantVectorStore | None = None
 
     @property
     def embeddings(self) -> OpenAIEmbeddings:
@@ -27,23 +28,51 @@ class VectorStoreService:
             self._embeddings = OpenAIEmbeddings(api_key=SecretStr(settings.openai_api_key))
         return self._embeddings
 
-    def _load(self) -> FAISS | None:
-        """Load existing FAISS index from disk. Returns None if not found."""
-        if not self._index_path.exists():
-            return None
-        try:
-            return FAISS.load_local(
-                str(self._index_path),
-                self.embeddings,
-                allow_dangerous_deserialization=True,
-            )
-        except Exception:
-            return None
+    @property
+    def client(self) -> QdrantClient:
+        """Shared Qdrant client. Uses qdrant_url if set (server/dashboard), else embedded at qdrant_path."""
+        if self._client is None:
+            if settings.qdrant_url:
+                self._client = QdrantClient(
+                    url=settings.qdrant_url,
+                    api_key=settings.qdrant_api_key,
+                )
+            else:
+                self._client = QdrantClient(path=settings.qdrant_path)
+        return self._client
 
-    def _save(self, vectorstore: FAISS) -> None:
-        """Persist FAISS index to disk."""
-        self._index_path.mkdir(parents=True, exist_ok=True)
-        vectorstore.save_local(str(self._index_path))
+    def _ensure_collection(self) -> None:
+        """Create the Qdrant collection if it does not already exist."""
+        client = self.client
+        name = settings.qdrant_collection
+        try:
+            client.get_collection(collection_name=name)
+            return
+        except ResponseHandlingException as e:
+            if "Connection refused" in str(e) or "Errno 61" in str(e):
+                url = settings.qdrant_url or "localhost:6333"
+                raise ValueError(
+                    f"Qdrant server at {url} is not running. Start it with: uv run packman-run-qdrant"
+                ) from e
+            raise
+        except Exception:
+            # Collection is missing; create it based on embedding dimensionality.
+            dim = len(self.embeddings.embed_query("dimension_probe"))
+            client.create_collection(
+                collection_name=name,
+                vectors_config=VectorParams(size=dim, distance=Distance.COSINE),
+            )
+
+    def _get_vectorstore(self) -> QdrantVectorStore:
+        """Return a Qdrant vector store, creating the collection if needed."""
+        if self._vectorstore is None:
+            self._ensure_collection()
+            self._vectorstore = QdrantVectorStore(
+                client=self.client,
+                collection_name=settings.qdrant_collection,
+                embedding=self.embeddings,
+            )
+        return self._vectorstore
 
     def add_device(
         self,
@@ -61,24 +90,49 @@ class VectorStoreService:
             "category": category or "",
         }
         doc = Document(page_content=text, metadata=metadata)
+        vectorstore = self._get_vectorstore()
+        vectorstore.add_documents([doc])
 
-        existing = self._load()
-        if existing is not None:
-            existing.add_documents([doc])
-            self._save(existing)
-        else:
-            vectorstore = FAISS.from_documents(
-                [doc],
-                self.embeddings,
+    def search(
+        self,
+        prompt: str,
+        k: int = 5,
+        *,
+        category: str | None = None,
+        max_price: float | None = None,
+    ) -> list[dict]:
+        """Find devices by prompt using similarity search. Returns list of metadata dicts.
+
+        Optional filters:
+        - category: only devices with matching category metadata
+        - max_price: only devices with price <= max_price
+        """
+        vectorstore = self._get_vectorstore()
+
+        qdrant_filter: Filter | None = None
+        conditions: list[FieldCondition] = []
+
+        if category:
+            conditions.append(
+                FieldCondition(
+                    key="metadata.category",
+                    match=MatchValue(value=category),
+                )
             )
-            self._save(vectorstore)
 
-    def search(self, prompt: str, k: int = 5) -> list[dict]:
-        """Find devices by prompt using similarity search. Returns list of metadata dicts."""
-        vectorstore = self._load()
-        if vectorstore is None:
-            return []
-        docs = vectorstore.similarity_search(prompt, k=k)
+        if max_price is not None:
+            conditions.append(
+                FieldCondition(
+                    key="metadata.price",
+                    range=Range(lte=max_price),
+                )
+            )
+        
+        if conditions:
+            qdrant_filter = Filter(must=list        (conditions))  # type: ignore[arg-type]
+
+
+        docs = vectorstore.similarity_search(prompt, k=k, filter=qdrant_filter)
         
         return [
             {
@@ -91,10 +145,8 @@ class VectorStoreService:
         ]
 
     def ask(self, query: str, k: int = 2) -> str:
-        """Answer a natural-language question about devices using RetrievalQA (FAISS + LLM)."""
-        vectorstore = self._load()
-        if vectorstore is None:
-            return "No devices in the catalog yet. Add devices first to search."
+        """Answer a natural-language question about devices using RetrievalQA (Qdrant + LLM)."""
+        vectorstore = self._get_vectorstore()
         retriever = vectorstore.as_retriever(
             search_type="similarity",
             search_kwargs={"k": k},

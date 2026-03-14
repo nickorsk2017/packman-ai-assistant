@@ -1,0 +1,16 @@
+# Qdrant server with web dashboard.
+# Uses the same data as the app (data/qdrant) when not using QDRANT_URL.
+# Run: uv run packman-run-qdrant  or  docker compose up -d
+# Dashboard: http://localhost:6333/dashboard
+# API: http://localhost:6333
+
+services:
+  qdrant:
+    image: qdrant/qdrant:latest
+    ports:
+      - "6333:6333"   # REST API + dashboard
+      - "6334:6334"   # gRPC
+    volumes:
+      - ./data/qdrant:/qdrant/storage
+    environment:
+      - QDRANT__SERVICE__GRPC_PORT=6334

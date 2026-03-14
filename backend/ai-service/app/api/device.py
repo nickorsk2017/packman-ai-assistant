@@ -46,6 +46,7 @@ def index_device(body: DeviceAddRequest) -> DeviceIndexResponse:
             price_tag = f"price_{int(body.price)}"
             if price_tag not in tags:
                 tags = [*tags, price_tag]
+                
         vector_store_service.add_device(
             name=body.name,
             tags=tags,
@@ -61,10 +62,21 @@ def index_device(body: DeviceAddRequest) -> DeviceIndexResponse:
 def search_devices(
     prompt: str = Query(..., min_length=1, description="Search prompt or tags"),
     k: int = Query(5, ge=1, le=20, description="Max number of results"),
+    max_price: float | None = Query(
+        None, ge=0, description="Optional maximum seller price (USD)"
+    ),
+    category: str | None = Query(
+        None, description="Optional category key (e.g. 'phones')"
+    ),
 ) -> DeviceSearchResponse:
-    """Find devices by prompt and tags using FAISS vector similarity search."""
+    """Find devices by prompt and tags using Qdrant vector similarity search with optional filters."""
     try:
-        results = vector_store_service.search(prompt, k=k)
+        results = vector_store_service.search(
+            prompt,
+            k=k,
+            category=category,
+            max_price=max_price,
+        )
         devices = [
             DeviceSearchResult(
                 name=r["name"],

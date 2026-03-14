@@ -62,14 +62,22 @@ export async function indexDevice(payload: DeviceIndexPayload): Promise<DeviceIn
   return handleResponse<DeviceIndexResponse>(res);
 }
 
-/** Find devices by prompt/tags using FAISS similarity search. */
+/** Find devices by prompt/tags using vector similarity search. */
 export async function searchDevices(
   prompt: string,
-  k: number = 5
+  k: number = 5,
+  category?: string | null,
+  maxPrice?: number | null
 ): Promise<DeviceSearchResponse> {
   const url = new URL(`${getAiBaseUrl()}/device/search`);
   url.searchParams.set("prompt", prompt);
   url.searchParams.set("k", String(k));
+  if (category) {
+    url.searchParams.set("category", category);
+  }
+  if (typeof maxPrice === "number" && !Number.isNaN(maxPrice)) {
+    url.searchParams.set("max_price", String(maxPrice));
+  }
   const res = await fetch(url.toString());
   return handleResponse<DeviceSearchResponse>(res);
 }

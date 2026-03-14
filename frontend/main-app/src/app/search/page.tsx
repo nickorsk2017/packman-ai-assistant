@@ -28,12 +28,19 @@ export default function SearchPage() {
   const handleAskPackMan = async () => {
     const q = prompt.trim();
     if (!q) return;
+    const maxPriceNumber =
+      maxPrice.trim() !== "" ? Number.parseFloat(maxPrice) : undefined;
     setAskError(null);
     setBestMatch(null);
     setNoMatchFound(false);
     setAskLoading(true);
     try {
-      const res = await searchDevices(q, 1);
+      const res = await searchDevices(
+        q,
+        1,
+        selectedCategory.id,
+        Number.isFinite(maxPriceNumber) ? maxPriceNumber : undefined,
+      );
       const top = res.devices[0] ?? null;
       setBestMatch(top);
       setNoMatchFound(!top);

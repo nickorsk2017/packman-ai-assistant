@@ -1,26 +1,32 @@
-"""Clear FAISS vector index data. Run: uv run python -m app.scripts.clear_faiss"""
+"""Clear Qdrant vector index data.
 
-import shutil
+Run: uv run packman-clear-faiss
+or:  uv run python -m app.scripts.clear_faiss
+"""
+
 import sys
-from pathlib import Path
+
+from qdrant_client import QdrantClient
 
 from app.config import settings
 
 
 def main() -> int:
-    target = Path(settings.faiss_index_path).resolve()
-    if not target.exists():
-        print(f"FAISS index path does not exist: {target}")
-        return 0
+    if settings.qdrant_url:
+        client = QdrantClient(url=settings.qdrant_url, api_key=settings.qdrant_api_key)
+    else:
+        client = QdrantClient(path=settings.qdrant_path)
+    collection = settings.qdrant_collection
     try:
-        if target.is_dir():
-            shutil.rmtree(target)
-            print(f"Removed FAISS index directory: {target}")
-        else:
-            target.unlink()
-            print(f"Removed FAISS index file: {target}")
-    except OSError as e:
-        print(f"Failed to clear FAISS data: {e}", file=sys.stderr)
+        client.delete_collection(collection_name=collection)
+        print(f"Deleted Qdrant collection: {collection}")
+    except Exception as e:  # noqa: BLE001
+        # If the collection doesn't exist, treat as success; otherwise report error.
+        message = str(e).lower()
+        if "not found" in message or "does not exist" in message:
+            print(f"Qdrant collection not found: {collection}")
+            return 0
+        print(f"Failed to clear Qdrant collection '{collection}': {e}", file=sys.stderr)
         return 1
     return 0
 
