@@ -20,9 +20,10 @@ export type DeviceIndexResponse = {
 
 export type DeviceSearchResult = {
   name: string;
-  tags: string[];
-  price?: number | null;
-  category: string;
+  price: number;
+  short_description: string;
+  key_features: string[];
+  specifications: string[];
 };
 
 export type DeviceSearchResponse = {

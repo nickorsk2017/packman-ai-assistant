@@ -1,4 +1,4 @@
-import { Header, Footer } from "@/shared/ui/layout";
+import { Header, Footer } from "@/shared/ui/layouts";
 
 export default function SearchLayout({
   children,

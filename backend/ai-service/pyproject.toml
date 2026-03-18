@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "packman-ai-service"
 version = "0.1.0"
-description = "PackMan AI service for generating device descriptions and specifications using OpenAI"
+description = "PackMan AI service for generating device descriptions and traits using OpenAI"
 readme = "README.md"
 requires-python = "==3.13.*"
 license = { text = "Commercial" }
@@ -27,6 +27,7 @@ dependencies = [
   "langchain-community>=0.3.0",
   "langchain-qdrant>=0.2.1",
   "qdrant-client>=1.17.0",
+  "dirtyjson>=1.0.8",
 ]
 
 [project.optional-dependencies]
@@ -36,7 +37,7 @@ dev = [
 
 [project.scripts]
 packman-ai-service = "app.main:main"
-packman-clear-faiss = "app.scripts.clear_faiss:main"
+packman-clear-vertical-db = "app.scripts.clear_vertical_db:main"
 packman-run-qdrant = "app.scripts.run_qdrant:main"
 
 [tool.setuptools]

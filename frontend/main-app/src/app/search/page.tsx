@@ -22,7 +22,7 @@ export default function SearchPage() {
   const [addDeviceError, setAddDeviceError] = useState<string | null>(null);
   const [askLoading, setAskLoading] = useState(false);
   const [askError, setAskError] = useState<string | null>(null);
-  const [bestMatch, setBestMatch] = useState<DeviceSearchResult | null>(null);
+  const [matchedDevices, setMatchedDevices] = useState<DeviceSearchResult[]>([]);
   const [noMatchFound, setNoMatchFound] = useState(false);
 
   const handleAskPackMan = async () => {
@@ -31,18 +31,17 @@ export default function SearchPage() {
     const maxPriceNumber =
       maxPrice.trim() !== "" ? Number.parseFloat(maxPrice) : undefined;
     setAskError(null);
-    setBestMatch(null);
+    setMatchedDevices([]);
     setNoMatchFound(false);
     setAskLoading(true);
     try {
       const res = await searchDevices(
         q,
-        1,
+        10,
         selectedCategory.id,
         Number.isFinite(maxPriceNumber) ? maxPriceNumber : undefined,
       );
-      const top = res.devices[0] ?? null;
-      setBestMatch(top);
+      setMatchedDevices(res.devices);
       setNoMatchFound(!top);
     } catch (err) {
       setAskError(err instanceof Error ? err.message : "Search failed");
@@ -93,7 +92,7 @@ export default function SearchPage() {
             onAddDeviceClick={() => setAddDeviceOpen(true)}
             onAskClick={handleAskPackMan}
             askLoading={askLoading}
-            bestMatch={bestMatch}
+            matchedDevices={matchedDevices}
             askError={askError}
             noMatchFound={noMatchFound}
           />

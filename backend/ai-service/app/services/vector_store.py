@@ -3,11 +3,23 @@
 from pydantic import SecretStr
 from qdrant_client import QdrantClient
 from qdrant_client.http.exceptions import ResponseHandlingException
-from qdrant_client.http.models import Distance, VectorParams, Filter, FieldCondition, MatchValue, Range
+from qdrant_client.http.models import (
+    Distance,
+    Filter,
+    FieldCondition,
+    MatchValue,
+    Range,
+    SearchParams,
+    VectorParams,
+)
 from langchain_core.documents import Document
 from langchain_qdrant import QdrantVectorStore
 from langchain_openai import OpenAIEmbeddings, ChatOpenAI
 from langchain.chains.retrieval_qa.base import RetrievalQA
+from app.schemas.device import (
+    DeviceSpecifications,
+    DeviceTraits,
+)
 
 from app.config import settings
 
@@ -77,19 +89,22 @@ class VectorStoreService:
     def add_device(
         self,
         name: str,
-        tags: list[str],
+        short_description: str,
+        traits: DeviceTraits | None = None,
+        specifications: DeviceSpecifications | None = None,
+        key_features: list[str] | None = None,
         price: float | None = None,
-        category: str | None = None,
     ) -> None:
         """Add a device to the vector store. Text is name + tags for embedding."""
-        text = f"{name} {' '.join(tags)}".strip()
+
         metadata = {
             "name": name,
-            "tags": tags,
             "price": price,
-            "category": category or "",
+            "traits": traits if traits else {},
+            "specifications": specifications if specifications else {},
+            "key_features": key_features if key_features else [],
         }
-        doc = Document(page_content=text, metadata=metadata)
+        doc = Document(page_content=short_description, metadata=metadata)
         vectorstore = self._get_vectorstore()
         vectorstore.add_documents([doc])
 
@@ -98,75 +113,74 @@ class VectorStoreService:
         prompt: str,
         k: int = 5,
         *,
-        category: str | None = None,
-        max_price: float | None = None,
+        max_price: float | None,
+        traits: DeviceTraits,
     ) -> list[dict]:
-        """Find devices by prompt using similarity search. Returns list of metadata dicts.
-
-        Optional filters:
-        - category: only devices with matching category metadata
-        - max_price: only devices with price <= max_price
-        """
+        """Find devices by prompt using similarity search."""
         vectorstore = self._get_vectorstore()
 
-        qdrant_filter: Filter | None = None
-        conditions: list[FieldCondition] = []
+        filter_conditions: list[FieldCondition] = []
 
-        if category:
-            conditions.append(
+        # 1. Fallback Price Logic
+        effective_max_price = float(max_price or traits.price or 0);
+
+        # 2. Filter Conditions
+        specs_dict = traits.model_dump(exclude_none=True)
+
+        form_factor: str | None = traits.form_factor if traits.form_factor else None
+
+        if form_factor and form_factor not in ["unknown", "any", ""]:
+            
+            filter_conditions.append(
                 FieldCondition(
-                    key="metadata.category",
-                    match=MatchValue(value=category),
+                    key="metadata.traits.form_factor",
+                    match=MatchValue(value=form_factor)
+                )
+        )
+
+        for key, value in specs_dict.items():
+            if value not in [None, "unknown", "any", ""] and key != "price" and key != "form_factor":
+                filter_conditions.append(
+                FieldCondition(
+                    key=f"metadata.traits.{key}",
+                    match=MatchValue(value=value),
                 )
             )
 
-        if max_price is not None:
-            conditions.append(
+        if effective_max_price > 0:
+            filter_conditions.append(
                 FieldCondition(
                     key="metadata.price",
-                    range=Range(lte=max_price),
+                    range=Range(lte=effective_max_price),
                 )
             )
-        
-        if conditions:
-            qdrant_filter = Filter(must=list        (conditions))  # type: ignore[arg-type]
 
+        filter: Filter = Filter(must=list(filter_conditions))
 
-        docs = vectorstore.similarity_search(prompt, k=k, filter=qdrant_filter)
-        
-        return [
-            {
+        # 3. Search Execution
+        docs = vectorstore.similarity_search(
+            prompt,
+            k=k,
+            filter=filter if filter_conditions else None,
+            search_params=SearchParams(hnsw_ef=128),
+            score_threshold=0.5,
+        )
+
+        devices = []
+
+        for d in docs:
+            devices.append({
                 "name": d.metadata.get("name", ""),
-                "tags": d.metadata.get("tags", []),
-                "price": d.metadata.get("price"),
-                "category": d.metadata.get("category", ""),
-            }
-            for d in docs
-        ]
+                "price": float(d.metadata.get("price") or 0),
+                "category": d.metadata.get("traits", "").get("category", ""),
+                "short_description": d.page_content,
+                "specifications": d.metadata.get("specifications", {}),
+                "key_features": d.metadata.get("key_features", []),
+            })
 
-    def ask(self, query: str, k: int = 2) -> str:
-        """Answer a natural-language question about devices using RetrievalQA (Qdrant + LLM)."""
-        vectorstore = self._get_vectorstore()
-        retriever = vectorstore.as_retriever(
-            search_type="similarity",
-            search_kwargs={"k": k},
-        )
-        if not settings.openai_api_key:
-            raise ValueError("OPENAI_API_KEY is not set")
-
-        llm = ChatOpenAI(
-            model="gpt-5-mini", 
-            temperature=0,
-            api_key=SecretStr(settings.openai_api_key)
-        )
-        qa_chain = RetrievalQA.from_chain_type(
-            llm=llm,
-            chain_type="stuff",
-            retriever=retriever,
-            return_source_documents=False,
-        )
-        out = qa_chain.invoke({"query": query})
-        return out.get("result", "") if isinstance(out, dict) else str(out)
+            print(devices, "devices")
+        
+        return devices
 
 
 vector_store_service = VectorStoreService()

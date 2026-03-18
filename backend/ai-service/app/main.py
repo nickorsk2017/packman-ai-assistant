@@ -18,7 +18,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="PackMan AI Service",
-    description="Device description and specifications via OpenAI",
+    description="Device description and traits via OpenAI",
     lifespan=lifespan,
 )
 app.add_middleware(

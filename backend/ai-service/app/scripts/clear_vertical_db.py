@@ -1,7 +1,7 @@
 """Clear Qdrant vector index data.
 
-Run: uv run packman-clear-faiss
-or:  uv run python -m app.scripts.clear_faiss
+Run: uv run packman-clear-vertical-db
+or:  uv run python -m app.scripts.clear_vertical_db
 """
 
 import sys

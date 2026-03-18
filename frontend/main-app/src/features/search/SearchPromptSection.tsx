@@ -1,6 +1,8 @@
 "use client";
 
 import type { DeviceSearchResult } from "@/services/ai";
+import { DeviceItem } from "./DeviceItem";
+import { useMemo } from "react";
 
 type Category = { id: string; label: string };
 
@@ -12,7 +14,7 @@ type SearchPromptSectionProps = {
   onAddDeviceClick: () => void;
   onAskClick: () => void;
   askLoading?: boolean;
-  bestMatch?: DeviceSearchResult | null;
+  matchedDevices: DeviceSearchResult[];
   askError?: string | null;
   noMatchFound?: boolean;
 };
@@ -25,10 +27,21 @@ export function SearchPromptSection({
   onAddDeviceClick,
   onAskClick,
   askLoading = false,
-  bestMatch = null,
+  matchedDevices = [],
   askError = null,
   noMatchFound = false,
 }: SearchPromptSectionProps) {
+
+  const matchedDevicesItems = useMemo(() => matchedDevices.map((device: DeviceSearchResult) => (
+    <DeviceItem
+      key={device.name}
+      name={device.name}
+      price={device.price}
+      short_description={device.short_description}
+      key_features={device.key_features || []}
+    />
+  )), [matchedDevices]);
+
   return (
     <section className="rounded-2xl border border-[var(--lilac-200)]/70 bg-white/90 p-6 shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -86,24 +99,7 @@ export function SearchPromptSection({
         </p>
       )}
 
-      {bestMatch && !askError && (
-        <div className="mt-4 rounded-xl border border-[var(--lilac-200)] bg-[var(--lilac-50)]/50 p-4">
-          <p className="text-xs font-semibold uppercase tracking-wider text-[var(--muted)]">
-            Best match
-          </p>
-          <p className="mt-1 font-semibold text-[var(--foreground)]">{bestMatch.name}</p>
-          {bestMatch.price != null && (
-            <p className="mt-0.5 text-sm text-[var(--lilac-700)]">
-              ${Number(bestMatch.price).toFixed(2)}
-            </p>
-          )}
-          {bestMatch.tags?.length > 0 && (
-            <p className="mt-1 text-xs text-[var(--muted)]">
-              {bestMatch.tags.join(" · ")}
-            </p>
-          )}
-        </div>
-      )}
+      {matchedDevices && !askError && matchedDevicesItems}
 
       <p className="mt-3 text-xs text-[var(--muted)]">
         This is a visual MVP of the AI search experience.

@@ -15,14 +15,14 @@ export type DeviceCreate = {
   name: string;
   category: string;
   price: number;
-  description?: string | null;
+  description: string | null;
 };
 
 export type DeviceUpdate = {
-  name?: string;
-  category?: string;
-  price?: number;
-  description?: string | null;
+  name: string;
+  category: string;
+  price: number;
+  description: string | null;
 };
 
 async function handleResponse<T>(res: Response): Promise<T> {
