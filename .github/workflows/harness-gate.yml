@@ -1,0 +1,51 @@
+name: harness-gate
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  harness:
+    name: harness (required)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - run: python3 .claude/scripts/ci_check.py
+
+  frontend:
+    name: frontend lint + build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: frontend/main-app/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+        working-directory: frontend/main-app
+      - run: make lint
+      - run: make build-frontend
+
+  device-service:
+    name: device-service build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: backend/device-service/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+        working-directory: backend/device-service
+      - run: make build-device
