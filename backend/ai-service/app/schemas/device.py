@@ -4,6 +4,16 @@ from pydantic import BaseModel
 class DeviceDescriptionResponse(BaseModel):
     name: str
     description: str
+    found: bool = True
+    sources: list[str] = []
+
+
+class DeviceResearch(BaseModel):
+    """Facts about a device found on the web."""
+
+    found: bool = False
+    facts: str = ""
+    sources: list[str] = []
 
 
 class DeviceInfoResponse(BaseModel):
@@ -26,6 +36,7 @@ class DeviceTraits(BaseModel):
     battery: str | None = None
     screen_size: str | None = None
     form_factor: str | None = None
+    display_count: int | None = None
 
 
 class DeviceSpecifications(BaseModel):
@@ -55,7 +66,7 @@ class DeviceAddRequest(BaseModel):
     """Payload to add a device to the vector database."""
 
     name: str
-    description: str
+    description: str | None = None
     price: float
 
 

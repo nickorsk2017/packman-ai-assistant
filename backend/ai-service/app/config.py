@@ -13,6 +13,8 @@ class Settings(BaseSettings):
     qdrant_path: str = "data/qdrant"
     qdrant_collection: str = "devices"
 
+    research_model: str = "gpt-6-luna"
+
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"

@@ -16,6 +16,9 @@ from app.services.vector_store import vector_store_service
 
 router = APIRouter(prefix="/device", tags=["device"])
 
+SEARCH_CANDIDATES_MULTIPLIER = 4
+SEARCH_CANDIDATES_MAX = 40
+
 
 @router.get("/description", response_model=DeviceDescriptionResponse)
 def get_device_description(
@@ -41,10 +44,16 @@ def get_device_info(
 
 @router.post("/index", response_model=DeviceIndexResponse)
 def index_device(body: DeviceAddRequest) -> DeviceIndexResponse:
-    """Add a device to the FAISS vector database. OpenAI generates tags from name/description."""
+    """Add or overwrite a device in the Qdrant vector store. OpenAI generates traits from name/description."""
     try:
-        device_traits_and_specifications: DeviceTraitsAndSpecifications = device_service.get_device_specs_by_name(name=body.name)
-        short_description: str = device_service.get_short_description(body.name, body.description, body.price)
+        description, sources = device_service.resolve_description(body.name, body.description)
+        device_traits_and_specifications: DeviceTraitsAndSpecifications = device_service.get_device_specs_by_name(
+            name=body.name,
+            description=description,
+        )
+        short_description: str = device_service.get_short_description(
+            body.name, description, body.price, specs=device_traits_and_specifications
+        )
 
         traits = device_traits_and_specifications.traits
         specifications = device_traits_and_specifications.specifications
@@ -54,6 +63,8 @@ def index_device(body: DeviceAddRequest) -> DeviceIndexResponse:
             name=body.name,
             short_description=short_description,
             price=body.price,
+            description=description,
+            sources=sources,
             traits=traits,
             specifications=specifications,
             key_features=key_features,
@@ -71,17 +82,18 @@ def search_devices(
         None, ge=0, description="Optional maximum seller price (USD)"
     )
 ) -> DeviceSearchResponse:
-    """Find devices by prompt and tags using Qdrant vector similarity search with optional filters."""
+    """Find devices: LLM extracts traits, Qdrant filters and ranks candidates, LLM keeps only matching ones."""
     try:
         traits: DeviceTraits = device_service.get_specifications_by_user_prompt(user_prompt=prompt)
 
-        results = vector_store_service.search(
+        candidates = vector_store_service.search(
             prompt,
-            k=k,
-            max_price=traits.price or max_price or None,
+            k=min(k * SEARCH_CANDIDATES_MULTIPLIER, SEARCH_CANDIDATES_MAX),
+            max_price=max_price or traits.price or None,
             traits=traits,
         )
-        
+        results = device_service.rerank_devices(prompt, candidates)[:k]
+
         devices = [
             DeviceSearchResult(
                 name=r["name"],
@@ -93,8 +105,7 @@ def search_devices(
             )
             for r in results
         ]
-        print(devices[0].key_features, "devices")
-        
+
         return DeviceSearchResponse(prompt=prompt, devices=devices)
     except ValueError as e:
         raise HTTPException(status_code=500, detail=str(e)) from e

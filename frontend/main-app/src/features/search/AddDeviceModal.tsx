@@ -34,6 +34,8 @@ export function AddDeviceModal({ open, onClose, onSubmit, error }: AddDeviceModa
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
+  const [aiSources, setAiSources] = useState<string[]>([]);
+  const [aiNotFound, setAiNotFound] = useState(false);
   const [lastAiName, setLastAiName] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -136,8 +138,36 @@ export function AddDeviceModal({ open, onClose, onSubmit, error }: AddDeviceModa
                 {aiLoading && (
                   <p className="flex-1 flex items-center justify-center gap-2 text-[22px] text-[var(--muted)]">
                     <span className="inline-block h-8 w-8 animate-spin rounded-full border border-[var(--lilac-400)] border-t-transparent" />
-                    <span>Generating description with AI…</span>
+                    <span>Searching the web for device specs…</span>
                   </p>
+                )}
+                {!aiLoading && aiNotFound && (
+                  <p className="text-xs text-amber-700">
+                    No specs found on the web for this device. Please describe it: screens, SIM, processor, memory, camera.
+                  </p>
+                )}
+                {!aiLoading && aiSources.length > 0 && (
+                  <div className="text-xs text-[var(--muted)]">
+                    <span>Sources: </span>
+                    {aiSources.slice(0, 5).map((url, i) => (
+                      <a
+                        key={url}
+                        href={url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="underline hover:text-[var(--lilac-600)]"
+                      >
+                        {(() => {
+                          try {
+                            return new URL(url).hostname.replace(/^www\./, "");
+                          } catch {
+                            return url;
+                          }
+                        })()}
+                        {i < Math.min(aiSources.length, 5) - 1 ? ", " : ""}
+                      </a>
+                    ))}
+                  </div>
                 )}
                 {aiError && (
                   <p className="text-xs text-red-600">
@@ -236,7 +266,11 @@ export function AddDeviceModal({ open, onClose, onSubmit, error }: AddDeviceModa
                       try {
                         setAiLoading(true);
                         setAiError(null);
+                        setAiNotFound(false);
+                        setAiSources([]);
                         const res = await getDeviceDescription(trimmed);
+                        setAiNotFound(!res.found);
+                        setAiSources(res.sources ?? []);
                         setForm((prev) => ({
                           ...prev,
                           description: prev.description || res.description,

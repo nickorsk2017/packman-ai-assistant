@@ -1,5 +1,9 @@
 """Qdrant vector store for device search using LangChain."""
 
+import re
+import uuid
+from typing import Any
+
 from pydantic import SecretStr
 from qdrant_client import QdrantClient
 from qdrant_client.http.exceptions import ResponseHandlingException
@@ -7,6 +11,7 @@ from qdrant_client.http.models import (
     Distance,
     Filter,
     FieldCondition,
+    MatchAny,
     MatchValue,
     Range,
     SearchParams,
@@ -14,14 +19,62 @@ from qdrant_client.http.models import (
 )
 from langchain_core.documents import Document
 from langchain_qdrant import QdrantVectorStore
-from langchain_openai import OpenAIEmbeddings, ChatOpenAI
-from langchain.chains.retrieval_qa.base import RetrievalQA
+from langchain_openai import OpenAIEmbeddings
 from app.schemas.device import (
     DeviceSpecifications,
     DeviceTraits,
 )
 
 from app.config import settings
+
+IGNORED_TRAIT_VALUES = (None, "unknown", "any", "")
+EXACT_FILTER_TRAITS = ("brand", "os", "category")
+PHONE_FORM_FACTORS = ["phone", "foldable"]
+
+
+def normalize_traits(traits: dict[str, Any]) -> dict[str, Any]:
+    """Lowercase string traits so filters match regardless of LLM casing."""
+    return {k: v.strip().lower() if isinstance(v, str) else v for k, v in traits.items()}
+
+
+def device_point_id(name: str) -> str:
+    """Stable point id per device name, so re-indexing overwrites instead of duplicating."""
+    return str(uuid.uuid5(uuid.NAMESPACE_URL, f"packman-device:{name.strip().lower()}"))
+
+
+def strip_html(text: str) -> str:
+    return re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", text or "")).strip()
+
+
+def build_page_content(
+    name: str,
+    short_description: str,
+    traits: dict[str, Any],
+    specifications: dict[str, Any],
+    key_features: list[str],
+) -> str:
+    """Plain text used for the embedding: name, facts first, marketing text last."""
+    lines = [name]
+    display_count = traits.get("display_count")
+    if display_count:
+        lines.append(
+            "Screens: 2, dual screen" if display_count >= 2 else "Screens: 1, single screen"
+        )
+    if key_features:
+        lines.append("Key features: " + ", ".join(key_features))
+    specs = [f"{k}: {v}" for k, v in specifications.items() if v not in IGNORED_TRAIT_VALUES]
+    if specs:
+        lines.append("Specifications: " + "; ".join(specs))
+    trait_values = [
+        f"{k}: {v}" for k, v in traits.items()
+        if v not in IGNORED_TRAIT_VALUES and k != "display_count"
+    ]
+    if trait_values:
+        lines.append("Traits: " + "; ".join(trait_values))
+    description = strip_html(short_description)
+    if description:
+        lines.append(description)
+    return "\n".join(lines)
 
 
 class VectorStoreService:
@@ -94,19 +147,30 @@ class VectorStoreService:
         specifications: DeviceSpecifications | None = None,
         key_features: list[str] | None = None,
         price: float | None = None,
+        description: str | None = None,
+        sources: list[str] | None = None,
     ) -> None:
-        """Add a device to the vector store. Text is name + tags for embedding."""
+        """Add or overwrite a device in the vector store."""
+        traits_dict = normalize_traits(traits.model_dump(exclude_none=True)) if traits else {}
+        specs_dict = specifications.model_dump(exclude_none=True) if specifications else {}
+        features = key_features or []
 
         metadata = {
             "name": name,
             "price": price,
-            "traits": traits if traits else {},
-            "specifications": specifications if specifications else {},
-            "key_features": key_features if key_features else [],
+            "description": description or "",
+            "short_description": short_description,
+            "traits": traits_dict,
+            "specifications": specs_dict,
+            "key_features": features,
+            "sources": sources or [],
         }
-        doc = Document(page_content=short_description, metadata=metadata)
+        doc = Document(
+            page_content=build_page_content(name, short_description, traits_dict, specs_dict, features),
+            metadata=metadata,
+        )
         vectorstore = self._get_vectorstore()
-        vectorstore.add_documents([doc])
+        vectorstore.add_documents([doc], ids=[device_point_id(name)])
 
     def search(
         self,
@@ -116,70 +180,66 @@ class VectorStoreService:
         max_price: float | None,
         traits: DeviceTraits,
     ) -> list[dict]:
-        """Find devices by prompt using similarity search."""
+        """Find candidate devices by prompt: hard filters on traits, then vector similarity."""
         vectorstore = self._get_vectorstore()
 
-        filter_conditions: list[FieldCondition] = []
+        query_traits = normalize_traits(traits.model_dump(exclude_none=True))
 
-        # 1. Fallback Price Logic
-        effective_max_price = float(max_price or traits.price or 0);
-
-        # 2. Filter Conditions
-        specs_dict = traits.model_dump(exclude_none=True)
-
-        form_factor: str | None = traits.form_factor if traits.form_factor else None
-
-        if form_factor and form_factor not in ["unknown", "any", ""]:
-            
-            filter_conditions.append(
-                FieldCondition(
-                    key="metadata.traits.form_factor",
-                    match=MatchValue(value=form_factor)
-                )
-        )
-
-        for key, value in specs_dict.items():
-            if value not in [None, "unknown", "any", ""] and key != "price" and key != "form_factor":
-                filter_conditions.append(
-                FieldCondition(
-                    key=f"metadata.traits.{key}",
-                    match=MatchValue(value=value),
-                )
-            )
-
+        price_conditions: list[FieldCondition] = []
+        effective_max_price = float(max_price or 0)
         if effective_max_price > 0:
-            filter_conditions.append(
-                FieldCondition(
-                    key="metadata.price",
-                    range=Range(lte=effective_max_price),
-                )
+            price_conditions.append(
+                FieldCondition(key="metadata.price", range=Range(lte=effective_max_price))
             )
 
-        filter: Filter = Filter(must=list(filter_conditions))
+        trait_conditions: list[FieldCondition] = []
+        for key in EXACT_FILTER_TRAITS:
+            value = query_traits.get(key)
+            if value not in IGNORED_TRAIT_VALUES:
+                trait_conditions.append(
+                    FieldCondition(key=f"metadata.traits.{key}", match=MatchValue(value=value))
+                )
 
-        # 3. Search Execution
-        docs = vectorstore.similarity_search(
-            prompt,
-            k=k,
-            filter=filter if filter_conditions else None,
-            search_params=SearchParams(hnsw_ef=128),
-            score_threshold=0.5,
-        )
+        form_factor = query_traits.get("form_factor")
+        if form_factor not in IGNORED_TRAIT_VALUES:
+            allowed = PHONE_FORM_FACTORS if form_factor in PHONE_FORM_FACTORS else [form_factor]
+            trait_conditions.append(
+                FieldCondition(key="metadata.traits.form_factor", match=MatchAny(any=allowed))
+            )
+
+        display_count = query_traits.get("display_count")
+        if display_count and display_count >= 2:
+            trait_conditions.append(
+                FieldCondition(key="metadata.traits.display_count", range=Range(gte=display_count))
+            )
+
+        def run(conditions: list[FieldCondition]):
+            return vectorstore.similarity_search_with_score(
+                prompt,
+                k=k,
+                filter=Filter(must=conditions) if conditions else None,
+                search_params=SearchParams(hnsw_ef=128),
+            )
+
+        results = run(price_conditions + trait_conditions)
+        if not results and trait_conditions:
+            print(f"No candidates with trait filters {query_traits}, retrying with price filter only")
+            results = run(price_conditions)
 
         devices = []
-
-        for d in docs:
+        for doc, score in results:
+            meta = doc.metadata
+            traits_meta = meta.get("traits") or {}
             devices.append({
-                "name": d.metadata.get("name", ""),
-                "price": float(d.metadata.get("price") or 0),
-                "category": d.metadata.get("traits", "").get("category", ""),
-                "short_description": d.page_content,
-                "specifications": d.metadata.get("specifications", {}),
-                "key_features": d.metadata.get("key_features", []),
+                "name": meta.get("name", ""),
+                "price": float(meta.get("price") or 0),
+                "category": traits_meta.get("category", ""),
+                "short_description": meta.get("short_description") or doc.page_content,
+                "traits": traits_meta,
+                "specifications": meta.get("specifications") or {},
+                "key_features": meta.get("key_features") or [],
+                "score": score,
             })
-
-            print(devices, "devices")
-        
         return devices
 
 

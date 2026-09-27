@@ -1,5 +1,3 @@
-from tempfile import template
-
 
 TRAITS_FIELDS_DEVICE = """
 - brand: specific brand name (e.g. "apple", "samsung", "google")
@@ -25,6 +23,7 @@ TRAITS_FIELDS_DEVICE = """
     "medium" (4000-5000mAh or 7-12h use),
     "long" (>5000mAh or >13h use like Apple M-series)
 - form_factor: "phone", "tablet", "laptop", "desktop", "foldable"
+- display_count: number of physical screens as integer. 1 for regular devices, 2 for dual-screen devices (second display, foldables with a cover screen)
 """
 
 SPECIFICATIONS_FIELDS_DEVICE = """
@@ -51,7 +50,11 @@ KEY_FEATURES_DEVICE_FIELDS = """
 """
 
 GET_TRAITS_BY_DEVICE_NAME_PROMPT = """
-Fill fields with data by device name. 
+Fill fields with data by device name.
+The user message contains the device name and may contain a seller description.
+The seller description is the source of truth. It may contain facts found on the web.
+Use your own knowledge only for a device you know exactly by this name. Never copy specs of a similar or older model.
+Do not infer features from words in the name: "Duo", "Dual", "Fold", "Max" mean nothing without facts.
 
 FORMAT JSON OBJECT THAT HAS THE FOLLOWING FIELDS (traits, specifications, key_features):
 
@@ -64,7 +67,7 @@ FORMAT JSON OBJECT THAT HAS THE FOLLOWING FIELDS (traits, specifications, key_fe
 - key_features:
 {key_features_device_fields} // 3-5 key features of the device, use short phrases like "long-life battery"
 
-IMPORTANT: ALL FIELDS MUST BE FILLED! RETURN VALID JSON PYTHON!
+IMPORTANT: RETURN VALID JSON PYTHON! If a value is not confirmed by the seller description or exact knowledge, use null.
 THESE FIELDS MUST BE WITHOUT NEW LINES! 
 """
 
@@ -73,10 +76,12 @@ GET_DEVICE_TRAITS_BY_USER_REQUEST_PROMPT = """
 Define structured fields from user prompt.
 
 From the given information by user, fill in the following fields (ONLY DEFINED FIELDS):
-- max_price: e.g. 100, 200, 300 // ONLY IF USER PROVIDED PRICE RANGE!
+- price: maximum budget in USD as a number, e.g. 800 // ONLY IF USER PROVIDED A PRICE OR BUDGET!
 {traits_fields}
 
-IMPORTANT: RETURN VALID JSON PYTHON! IF FIELS IS NOT DEFINED, DON'T RETURN IT!
+Set display_count only if the user asks for dual screen, two screens, second display or similar.
+
+IMPORTANT: RETURN VALID JSON PYTHON! IF FIELD IS NOT DEFINED, DON'T RETURN IT!
 THESE FIELDS MUST BE WITHOUT NEW LINES! 
 """
 
@@ -94,11 +99,12 @@ Rules:
 - Keep it short (3-5 sentences).
 - Use natural marketing-style language.
 - Don't show name of device.
-- Use buity and elegant html markup, use only H1, P, B tags.
+- Use beautiful and elegant html markup, use only H1, P, B tags.
+- Use ONLY facts from the input: seller description, specifications, key features, traits.
+- Do not add features that are not in the input. Do not infer features from the device name.
+- If the device has 2 screens (display_count 2), mention it as a main strength.
 
-Input:
-Device specs:
-{device_specs}
+Input: the user message contains the device name, seller description, extracted specifications and seller price.
 
 Output format:
 A short user-friendly description of the device.
@@ -132,4 +138,45 @@ IMPORTANT RULES:
 - SPECIFICATIONS should have only the key important specs (display, processor, storage, battery, etc.) - 400 characters max. 
 - BEST FOR is most important.
 - Do not add markdown, symbols, or explanations. Do not repeat the device name unnecessarily.
+"""
+
+
+RERANK_DEVICES_PROMPT = """
+You filter search results for a device catalog.
+
+The user message is JSON with "request" (what the buyer wants) and "candidates" (devices found by vector search).
+Keep only candidates that satisfy every explicit requirement of the request: features (e.g. dual screen, stylus, 5G), brand, OS, budget, size.
+Use name, key_features, specifications and traits of each candidate.
+A similar word is not a match: "dual camera" or "dual SIM" does not satisfy "dual screen".
+If the request has no hard requirements (e.g. "good phone for students"), keep candidates that fit its intent.
+Order kept candidates from best to worst match.
+
+Return JSON: {"ids": [<candidate id>, ...]}. Return {"ids": []} if nothing matches.
+"""
+
+
+RESEARCH_DEVICE_PROMPT = """
+You research consumer devices for a marketplace catalog.
+The user message is a device name. Search the web for this exact device: manufacturer site, press releases, GSMArena, trusted tech media.
+Collect only facts confirmed by sources. Do not guess and do not use specs of other models.
+
+Output format (plain text, no markdown):
+FOUND: yes or no
+Brand: ...
+Model: ...
+Release date: ...
+Screens: number of physical displays and their sizes/types
+Display: ...
+Processor: ...
+RAM: ...
+Storage: ...
+Camera: ...
+Battery: ...
+SIM: ...
+OS: ...
+Launch price: ...
+Key features: 3-5 short phrases
+
+Skip a line if the fact is not found.
+If there are no sources about this exact device, return only "FOUND: no".
 """

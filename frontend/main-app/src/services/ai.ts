@@ -3,6 +3,8 @@ const getAiBaseUrl = () => "http://localhost:8001/api/v1";
 export type DeviceDescription = {
   name: string;
   description: string;
+  found: boolean;
+  sources: string[];
 };
 
 export type DeviceIndexPayload = {
