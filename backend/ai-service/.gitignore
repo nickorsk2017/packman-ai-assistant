@@ -11,3 +11,7 @@ __pycache__
 
 # FAISS index
 data/
+# DeepEval reports (generated)
+evals/reports/*
+!evals/reports/.gitkeep
+.deepeval/

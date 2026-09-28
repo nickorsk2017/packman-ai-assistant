@@ -6,6 +6,7 @@ AI_DIR       := backend/ai-service
         dev dev-frontend dev-device dev-ai \
         build build-frontend build-device start-frontend start-device lint \
         qdrant-up qdrant-down qdrant-logs clear-vertical-db reindex \
+        eval eval-add eval-search \
         migration-run migration-revert migration-show migration-generate
 
 help:
@@ -37,6 +38,11 @@ help:
 	@echo "  make qdrant-logs          follow Qdrant logs"
 	@echo "  make clear-vertical-db    clear the vertical DB"
 	@echo "  make reindex              re-index all devices with the current pipeline"
+	@echo ""
+	@echo "AI quality evals (DeepEval, uses OPENAI_API_KEY, isolated devices_eval collection):"
+	@echo "  make eval                 run all evals, report in $(AI_DIR)/evals/reports"
+	@echo "  make eval-add             Add Device evals: research, specs, short description"
+	@echo "  make eval-search          Search evals: trait extraction, retrieval, rerank"
 	@echo ""
 	@echo "device-service migrations (TypeORM):"
 	@echo "  make migration-run"
@@ -104,6 +110,17 @@ clear-vertical-db:
 
 reindex:
 	cd $(AI_DIR) && uv run packman-reindex-devices
+
+EVAL_ENV := DEEPEVAL_RESULTS_FOLDER=evals/reports DEEPEVAL_TELEMETRY_OPT_OUT=YES
+
+eval:
+	cd $(AI_DIR) && $(EVAL_ENV) uv run --extra eval deepeval test run evals
+
+eval-add:
+	cd $(AI_DIR) && $(EVAL_ENV) uv run --extra eval deepeval test run evals/test_add_device.py
+
+eval-search:
+	cd $(AI_DIR) && $(EVAL_ENV) uv run --extra eval deepeval test run evals/test_search.py
 
 migration-run:
 	cd $(DEVICE_DIR) && pnpm migration:run

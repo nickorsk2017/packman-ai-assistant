@@ -1,0 +1,89 @@
+{
+  "version": 1,
+  "devices": [
+    {
+      "name": "Apple iPhone 15 Pro 256GB",
+      "price": 899,
+      "description": "Apple iPhone 15 Pro, 256GB storage, Natural Titanium. 6.1-inch Super Retina XDR OLED display with ProMotion 120Hz. Apple A17 Pro chip, 8GB RAM. Triple camera: 48MP main, 12MP ultra wide, 12MP 3x telephoto. USB-C port, Action button, titanium frame. Runs iOS. Battery health 92%, used, no scratches.",
+      "traits": {"brand": "apple", "os": "ios", "category": "phones", "form_factor": "phone", "display_count": 1, "storage_capacity": "medium", "screen_size": "medium"},
+      "specifications": {"brand": "apple", "os": "ios", "processor": "A17 Pro", "ram": "8GB", "storage": "256GB", "screen_size": "6.1", "form_factor": "phone"}
+    },
+    {
+      "name": "Samsung Galaxy S24 Ultra 512GB",
+      "price": 1099,
+      "description": "Samsung Galaxy S24 Ultra, 512GB, 12GB RAM, Titanium Black. 6.8-inch Dynamic AMOLED 2X display, 120Hz. Qualcomm Snapdragon 8 Gen 3 for Galaxy. 200MP main camera, 50MP 5x and 10MP 3x telephoto, 12MP ultra wide. Built-in S Pen stylus. 5000mAh battery, 45W charging. Android 14 with One UI 6.1 and Galaxy AI. New, sealed box.",
+      "traits": {"brand": "samsung", "os": "android", "category": "phones", "form_factor": "phone", "display_count": 1, "storage_capacity": "medium", "screen_size": "large"},
+      "specifications": {"brand": "samsung", "os": "android", "processor": "Snapdragon 8 Gen 3", "ram": "12GB", "storage": "512GB", "screen_size": "6.8", "battery_capacity": "5000mAh", "camera": "200MP", "form_factor": "phone"}
+    },
+    {
+      "name": "Google Pixel 8 128GB",
+      "price": 449,
+      "description": "Google Pixel 8, 128GB, 8GB RAM, Obsidian. 6.2-inch Actua OLED display, 120Hz. Google Tensor G3 chip. 50MP main camera and 12MP ultra wide, Magic Eraser and Best Take. 4575mAh battery. Android 14, 7 years of OS updates. Used, very good condition.",
+      "traits": {"brand": "google", "os": "android", "category": "phones", "form_factor": "phone", "display_count": 1, "storage_capacity": "small", "screen_size": "medium"},
+      "specifications": {"brand": "google", "os": "android", "processor": "Tensor G3", "ram": "8GB", "storage": "128GB", "screen_size": "6.2", "battery_capacity": "4575mAh", "camera": "50MP", "form_factor": "phone"}
+    },
+    {
+      "name": "Samsung Galaxy Z Fold5 256GB",
+      "price": 1199,
+      "description": "Samsung Galaxy Z Fold5, 256GB, 12GB RAM, Icy Blue. Foldable phone with a 7.6-inch main Dynamic AMOLED 2X display and a 6.2-inch cover screen. Snapdragon 8 Gen 2 for Galaxy. 50MP main, 12MP ultra wide, 10MP 3x telephoto cameras. 4400mAh battery. Android 13 with One UI 5.1.1, S Pen Fold Edition support. Used, hinge in perfect condition.",
+      "traits": {"brand": "samsung", "os": "android", "category": "phones", "form_factor": "foldable", "display_count": 2, "storage_capacity": "medium", "screen_size": "large"},
+      "specifications": {"brand": "samsung", "os": "android", "processor": "Snapdragon 8 Gen 2", "ram": "12GB", "storage": "256GB", "battery_capacity": "4400mAh", "camera": "50MP", "form_factor": "foldable"}
+    },
+    {
+      "name": "Samsung Galaxy A54 5G 128GB",
+      "price": 249,
+      "description": "Samsung Galaxy A54 5G, 128GB, 8GB RAM, Awesome Graphite. 6.4-inch Super AMOLED display, 120Hz. Exynos 1380 processor. 50MP main camera with OIS, 12MP ultra wide, 5MP macro. 5000mAh battery, IP67 water resistance. Android 13 with One UI 5.1. Used, good condition.",
+      "traits": {"brand": "samsung", "os": "android", "category": "phones", "form_factor": "phone", "display_count": 1, "storage_capacity": "small", "screen_size": "medium"},
+      "specifications": {"brand": "samsung", "os": "android", "processor": "Exynos 1380", "ram": "8GB", "storage": "128GB", "screen_size": "6.4", "battery_capacity": "5000mAh", "camera": "50MP", "form_factor": "phone"}
+    },
+    {
+      "name": "Apple MacBook Air 13 M2 256GB",
+      "price": 849,
+      "description": "Apple MacBook Air 13-inch, M2 chip with 8-core CPU and 8-core GPU, 8GB unified memory, 256GB SSD, Midnight. 13.6-inch Liquid Retina display. Up to 18 hours battery life, fanless design, MagSafe charging, 1080p FaceTime HD camera. macOS Sonoma. Used, 45 battery cycles.",
+      "traits": {"brand": "apple", "os": "macos", "category": "laptops", "form_factor": "laptop", "display_count": 1, "storage_capacity": "small", "screen_size": "medium"},
+      "specifications": {"brand": "apple", "os": "macos", "processor": "M2", "ram": "8GB", "storage": "256GB", "screen_size": "13.6", "battery_life": "18 hours", "form_factor": "laptop"}
+    },
+    {
+      "name": "Dell XPS 15 9530",
+      "price": 1499,
+      "description": "Dell XPS 15 9530 laptop. 15.6-inch 3.5K OLED touch display. Intel Core i7-13700H, 32GB DDR5 RAM, 1TB NVMe SSD, NVIDIA GeForce RTX 4060 8GB. Windows 11 Pro. Aluminum and carbon fiber chassis, 86Wh battery. Used, excellent condition.",
+      "traits": {"brand": "dell", "os": "windows", "category": "laptops", "form_factor": "laptop", "display_count": 1, "storage_capacity": "medium", "screen_size": "large"},
+      "specifications": {"brand": "dell", "os": "windows", "processor": "Core i7-13700H", "ram": "32GB", "storage": "1TB", "screen_size": "15.6", "form_factor": "laptop"}
+    },
+    {
+      "name": "Lenovo Yoga Book 9i",
+      "price": 1599,
+      "description": "Lenovo Yoga Book 9i dual-screen laptop with two 13.3-inch 2.8K OLED touch displays. Intel Core i7-1355U, 16GB LPDDR5X RAM, 1TB SSD. Includes detachable Bluetooth keyboard, Lenovo Smart Pen and folio stand. Windows 11 Home. 80Wh battery. New, open box.",
+      "traits": {"brand": "lenovo", "os": "windows", "category": "laptops", "form_factor": "laptop", "display_count": 2, "storage_capacity": "medium", "screen_size": "medium"},
+      "specifications": {"brand": "lenovo", "os": "windows", "processor": "Core i7-1355U", "ram": "16GB", "storage": "1TB", "screen_size": "13.3", "form_factor": "laptop"}
+    },
+    {
+      "name": "ASUS Zenbook Duo UX8406",
+      "price": 1299,
+      "description": "ASUS Zenbook Duo UX8406 with two 14-inch 3K OLED touchscreens. Intel Core Ultra 7 155H, 16GB LPDDR5X RAM, 1TB SSD. Detachable Bluetooth keyboard, built-in kickstand, ASUS Pen support. Windows 11 Home. 75Wh battery. New.",
+      "traits": {"brand": "asus", "os": "windows", "category": "laptops", "form_factor": "laptop", "display_count": 2, "storage_capacity": "medium", "screen_size": "medium"},
+      "specifications": {"brand": "asus", "os": "windows", "processor": "Core Ultra 7 155H", "ram": "16GB", "storage": "1TB", "screen_size": "14", "form_factor": "laptop"}
+    },
+    {
+      "name": "Apple iPad Air 11 M2 128GB",
+      "price": 549,
+      "description": "Apple iPad Air 11-inch (M2), Wi-Fi, 128GB, Space Gray. 11-inch Liquid Retina display. Apple M2 chip. 12MP landscape front camera. Supports Apple Pencil Pro and Magic Keyboard. Up to 10 hours battery life. iPadOS 17. Used, like new.",
+      "traits": {"brand": "apple", "os": "ipados", "category": "tablets", "form_factor": "tablet", "display_count": 1, "screen_size": "medium"},
+      "specifications": {"brand": "apple", "os": "ipados", "processor": "M2", "storage": "128GB", "screen_size": "11", "battery_life": "10 hours", "form_factor": "tablet"}
+    },
+    {
+      "name": "Samsung Galaxy Tab S9 128GB",
+      "price": 599,
+      "description": "Samsung Galaxy Tab S9, 128GB, 8GB RAM, Graphite. 11-inch Dynamic AMOLED 2X display, 120Hz. Snapdragon 8 Gen 2 for Galaxy. S Pen included. IP68 water and dust resistance. 8400mAh battery. Android 13 with One UI 5.1. Used, good condition.",
+      "traits": {"brand": "samsung", "os": "android", "category": "tablets", "form_factor": "tablet", "display_count": 1, "screen_size": "medium"},
+      "specifications": {"brand": "samsung", "os": "android", "processor": "Snapdragon 8 Gen 2", "ram": "8GB", "storage": "128GB", "screen_size": "11", "battery_capacity": "8400mAh", "form_factor": "tablet"}
+    },
+    {
+      "name": "Sony Alpha a7 IV Body",
+      "price": 1899,
+      "description": "Sony Alpha a7 IV full-frame mirrorless camera, body only. 33MP Exmor R BSI CMOS sensor, BIONZ XR processor. 4K 60p video, 10-bit 4:2:2. 5-axis in-body image stabilization, real-time Eye AF. 3-inch vari-angle touchscreen. Sony E-mount. About 8000 shutter count, used.",
+      "traits": {"brand": "sony", "os": null, "category": "cameras"},
+      "specifications": {"brand": "sony", "camera": "33MP"}
+    }
+  ]
+}

@@ -15,6 +15,11 @@ class Settings(BaseSettings):
 
     research_model: str = "gpt-6-luna"
 
+    # DeepEval suite (backend/ai-service/evals): judge model and isolated Qdrant collection
+    eval_judge_model: str = "gpt-6-luna"
+    eval_qdrant_collection: str = "devices_eval"
+    eval_qdrant_path: str = "data/qdrant_eval"
+
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"

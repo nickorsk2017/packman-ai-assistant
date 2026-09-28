@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "research": [
+    {
+      "name": "Apple iPhone 15 Pro",
+      "expect_found": true,
+      "reference": "Brand: Apple. Model: iPhone 15 Pro. Released September 2023. One 6.1-inch Super Retina XDR OLED display, 120Hz ProMotion. Processor: Apple A17 Pro. RAM: 8GB. Storage: 128GB, 256GB, 512GB, 1TB. Cameras: 48MP main, 12MP ultra wide, 12MP 3x telephoto. Titanium frame, USB-C, Action button. OS: iOS 17 at launch. Launch price from $999.",
+      "key_facts": ["A17 Pro chip", "6.1-inch display", "48MP main camera", "titanium frame", "USB-C"]
+    },
+    {
+      "name": "Samsung Galaxy Z Fold5",
+      "expect_found": true,
+      "reference": "Brand: Samsung. Model: Galaxy Z Fold5. Released August 2023. Two displays: 7.6-inch foldable main Dynamic AMOLED 2X and 6.2-inch cover screen. Processor: Snapdragon 8 Gen 2 for Galaxy. RAM: 12GB. Storage: 256GB, 512GB, 1TB. Cameras: 50MP main, 12MP ultra wide, 10MP 3x telephoto. Battery: 4400mAh. OS: Android 13, One UI 5.1.1. Launch price from $1799.",
+      "key_facts": ["foldable with two displays", "7.6-inch main display", "6.2-inch cover screen", "Snapdragon 8 Gen 2", "4400mAh battery"]
+    },
+    {
+      "name": "Lenovo Yoga Book 9i",
+      "expect_found": true,
+      "reference": "Brand: Lenovo. Model: Yoga Book 9i (Gen 8). Released 2023. Two 13.3-inch 2.8K OLED touch displays. Processor: Intel Core i7-1355U. RAM: 16GB LPDDR5X. Storage: up to 1TB SSD. Detachable Bluetooth keyboard, Lenovo Smart Pen, folio stand. Battery: 80Wh. OS: Windows 11. Launch price from $1999.",
+      "key_facts": ["two 13.3-inch OLED displays", "Intel Core i7-1355U", "16GB RAM", "detachable keyboard", "Windows 11"]
+    },
+    {
+      "name": "Zorbix Nimbus X9 Pro Max 2031",
+      "expect_found": false,
+      "reference": "",
+      "key_facts": []
+    }
+  ],
+  "description_devices": [
+    "Apple iPhone 15 Pro 256GB",
+    "Samsung Galaxy Z Fold5 256GB",
+    "Lenovo Yoga Book 9i",
+    "Apple iPad Air 11 M2 128GB",
+    "Sony Alpha a7 IV Body"
+  ]
+}
