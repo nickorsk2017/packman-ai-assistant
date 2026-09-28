@@ -1,28 +1,34 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 
 const STORAGE_KEY = "packman_intro_seen";
 
-export function IntroModal() {
-  const [open, setOpen] = useState(false);
+function subscribe(callback: () => void) {
+  window.addEventListener("storage", callback);
+  return () => window.removeEventListener("storage", callback);
+}
 
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const seen = window.localStorage.getItem(STORAGE_KEY);
-    if (!seen) {
-      setOpen(true);
-    }
-  }, []);
+function getSnapshot() {
+  return Boolean(window.localStorage.getItem(STORAGE_KEY));
+}
+
+function getServerSnapshot() {
+  return true;
+}
+
+export function IntroModal() {
+  const seen = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+  const [dismissed, setDismissed] = useState(false);
 
   const handleClose = (hide: boolean) => {
-    if (typeof window !== "undefined" && hide) {
+    if (hide) {
       window.localStorage.setItem(STORAGE_KEY, "true");
     }
-    setOpen(false);
+    setDismissed(true);
   };
 
-  if (!open) return null;
+  if (seen || dismissed) return null;
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
